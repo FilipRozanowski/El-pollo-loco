@@ -5,6 +5,9 @@ ctx;
 canvas;
 keyboard;
 camera_x = 0;
+healthBar = new StatusBar('health', 0, -10);
+coinBar   = new StatusBar('coin',   0, 30);
+bottleBar = new StatusBar('bottle', 0, 80);
 
 
 
@@ -25,7 +28,8 @@ checkCollisions(){
     setInterval(() => {
         this.level.enemies.forEach( (enemy) => {
           if( this.character.isColliding(enemy)) {
-            console.log('Collision with Character', enemy);
+            this.character.hit();
+            this.healthBar.setPercentage(this.character.energy);
           }
         })
     }, 200);
@@ -35,16 +39,18 @@ checkCollisions(){
     draw(){
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+
+
         this.ctx.translate(this.camera_x, 0);
-
-
          this.addObjectsToMap(this.level.backgroundObjects);
          this.addObjectsToMap(this.level.clouds);
         this.addToMap(this.character);
        this.addObjectsToMap(this.level.enemies);
-
         this.ctx.translate(-this.camera_x, 0);
 
+         this.addToMap(this.healthBar);
+        this.addToMap(this.coinBar);
+        this.addToMap(this.bottleBar);
 
         let self = this;
         requestAnimationFrame(function(){
