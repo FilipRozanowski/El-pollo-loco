@@ -1,4 +1,4 @@
-class StatusBar extends DrawableObject{
+class StatusBar extends DrawableObject {
 
 
     IMAGES_HEALTHBAR = [
@@ -33,38 +33,38 @@ class StatusBar extends DrawableObject{
         this.loadImages(this.IMAGES_BOTTLEBAR);
         this.x = x;
         this.y = y;
-        this.width = 210; 
+        this.width = 210;
         this.height = 60;
-         this.type = type;
-    
-    if (this.type === 'health') {
-        this.setPercentage(100);
-    } else {
-        this.setPercentage(60);
-    }
+        this.type = type;
+
+        if (this.type === 'health') {
+            this.setPercentage(100);
+        } else {
+            this.setPercentage(0);
+        }
     }
 
     setPercentage(percentage) {
-    this.percentage = percentage;
-    let images;
-    if (this.type === 'health') images = this.IMAGES_HEALTHBAR;
-    else if (this.type === 'coin') images = this.IMAGES_COINBAR;
-    else if (this.type === 'bottle') images = this.IMAGES_BOTTLEBAR;
-    
-    let path = images[this.resolveImageIndex()];
-    this.img = this.imageCache[path];
-}
+        this.percentage = percentage;
+        let images;
+        if (this.type === 'health') images = this.IMAGES_HEALTHBAR;
+        else if (this.type === 'coin') images = this.IMAGES_COINBAR;
+        else if (this.type === 'bottle') images = this.IMAGES_BOTTLEBAR;
 
-       resolveImageIndex(){
-        if (this.percentage == 100){
+        let path = images[this.resolveImageIndex()];
+        this.img = this.imageCache[path];
+    }
+
+    resolveImageIndex() {
+        if (this.percentage == 100) {
             return 5;
-        } else if(this.percentage > 80){
+        } else if (this.percentage >= 80) {
             return 4;
-        } else if(this.percentage > 60){
+        } else if (this.percentage >= 60) {
             return 3;
-        } else if(this.percentage > 40){
+        } else if (this.percentage >= 40) {
             return 2;
-        } else if(this.percentage > 20){
+        } else if (this.percentage >= 20) {
             return 1;
         } else {
             return 0;

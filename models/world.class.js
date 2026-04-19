@@ -1,106 +1,128 @@
-class World{
- character = new Character();
+class World {
+    character = new Character();
     level = level1;
-ctx;
-canvas;
-keyboard;
-camera_x = 0;
-healthBar = new StatusBar('health', 0, -10);
-coinBar   = new StatusBar('coin',   0, 30);
-bottleBar = new StatusBar('bottle', 0, 80);
-throwableObjects = [new ThrowableObject()];
+    ctx;
+    canvas;
+    keyboard;
+    camera_x = 0;
+    healthBar = new StatusBar('health', 0, -10);
+    coinBar = new StatusBar('coin', 0, 30);
+    bottleBar = new StatusBar('bottle', 0, 80);
+    throwableObjects = [new ThrowableObject()];
 
 
 
-constructor(canvas, keyboard){
-    this.ctx = canvas.getContext('2d');
-    this.canvas = canvas;
-    this.keyboard = keyboard;
-    this.draw();
-    this.setWorld();
-    this.run();
-}
-
-setWorld(){
-    this.character.world = this;
-}
-
-run(){
-    setInterval(() => {
-
-       this.checkCollisions();
-       this.checkThrowObjects();
-    }, 200);
-}
-
-checkThrowObjects(){
-    if (this.keyboard.F) {
-        let bottle = new ThrowableObject(this.character.x, this.character.y);
-        this.throwableObjects.push(bottle);
+    constructor(canvas, keyboard) {
+        this.ctx = canvas.getContext('2d');
+        this.canvas = canvas;
+        this.keyboard = keyboard;
+        this.draw();
+        this.setWorld();
+        this.run();
     }
-}
 
-checkCollisions(){
-     this.level.enemies.forEach( (enemy) => {
-          if( this.character.isColliding(enemy)) {
+    setWorld() {
+        this.character.world = this;
+    }
+
+    run() {
+        setInterval(() => {
+            this.checkCollisions();
+        }, 200);
+
+        setInterval(() => {
+            this.checkThrowObjects();
+        }, 10);
+
+    }
+
+    checkThrowObjects() {
+        if (this.keyboard.F && !this.lastThrow) {
+            this.lastThrow = true;
+            let bottle = new ThrowableObject(
+                this.character.x + 40,
+                this.character.y + this.character.height / 2,
+                this.character.otherDirection
+            );
+            this.throwableObjects.push(bottle);
+        }
+
+        if (!this.keyboard.F) {
+            this.lastThrow = false;
+        }
+    }
+
+
+
+   checkCollisions() {
+    this.level.enemies.forEach((enemy) => {
+        if (this.character.isColliding(enemy) && !this.character.isHurt()) {
             this.character.hit();
             this.healthBar.setPercentage(this.character.energy);
-          }
-        })
+        }
+    });
+
+    this.level.coins.forEach((coin, index) => {
+        if (this.character.isColliding(coin)) {
+            this.coinBar.setPercentage(this.coinBar.percentage + 20);
+            this.level.coins.splice(index, 1); 
+        }
+    });
 }
 
 
-    draw(){
+    draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 
 
         this.ctx.translate(this.camera_x, 0);
-         this.addObjectsToMap(this.level.backgroundObjects);
-         this.addObjectsToMap(this.level.clouds);
+        this.addObjectsToMap(this.level.backgroundObjects);
+        this.addObjectsToMap(this.level.clouds);
+        this.addObjectsToMap(this.level.coins);
         this.addToMap(this.character);
-       this.addObjectsToMap(this.level.enemies);
-       this.addObjectsToMap(this.throwableObjects);
+        this.addObjectsToMap(this.level.enemies);
+        this.addObjectsToMap(this.throwableObjects);
         this.ctx.translate(-this.camera_x, 0);
 
-         this.addToMap(this.healthBar);
+        this.addToMap(this.healthBar);
         this.addToMap(this.coinBar);
         this.addToMap(this.bottleBar);
 
         let self = this;
-        requestAnimationFrame(function(){
+        requestAnimationFrame(function () {
             self.draw();
         });
     }
 
-    addObjectsToMap(objects){
-         objects.forEach(o => {
+    addObjectsToMap(objects) {
+        objects.forEach(o => {
             this.addToMap(o);
-    });
-}
-    
-    addToMap(mo){
-        if(mo.otherDirection){
-       this.flipImage(mo);
+        });
+    }
+
+    addToMap(mo) {
+        if (mo.otherDirection) {
+            this.flipImage(mo);
         }
 
         mo.draw(this.ctx);
-         mo.drawFrame(this.ctx);
+        mo.drawFrame(this.ctx);
 
-         if(mo.otherDirection){
-           this.flipImageBack(mo);
-         }
+        if (mo.otherDirection) {
+            this.flipImageBack(mo);
+        }
     }
 
-        flipImage(mo){
-             this.ctx.save();
-           this.ctx.translate(mo.width, 0);
-            this.ctx.scale(-1, 1);
-            mo.x = mo.x * -1;
+    flipImage(mo) {
+        this.ctx.save();
+        this.ctx.translate(mo.width, 0);
+        this.ctx.scale(-1, 1);
+        mo.x = mo.x * -1;
     }
 
-    flipImageBack(mo){
-          mo.x = mo.x * -1;
-            this.ctx.restore();
+    flipImageBack(mo) {
+        mo.x = mo.x * -1;
+        this.ctx.restore();
     }
 }

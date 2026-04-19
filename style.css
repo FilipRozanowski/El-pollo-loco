@@ -1,10 +1,25 @@
-body{
+@font-face {
+  font-family: Zabra;
+  src: url(/fonts/zabars/Zabars.ttf);
+}
+
+
+body {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-}
+    height: 80vh;
+    background-image: url("img/Westernbackground.png");
+    font-family: Zabra;
+    }
 
-canvas{
+    h1{
+        font-size: 60px;
+         letter-spacing: 2px;
+    }
+
+canvas {
     background-color: black;
 }
+
