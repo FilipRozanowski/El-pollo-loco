@@ -17,10 +17,15 @@ class SmallChicken extends MovableObject {
         'img/3_enemies_chicken/chicken_small/1_walk/3_w.png'
     ]
 
+    IMAGES_DEAD = [
+        'img/3_enemies_chicken/chicken_small/2_dead/dead.png'
+    ]
+
+
     constructor() {
         super().loadImage('img/3_enemies_chicken/chicken_small/1_walk/1_w.png');
         this.loadImages(this.IMAGES_WALKING);
-
+         this.loadImages(this.IMAGES_DEAD);
         this.x = 300 + Math.random() * 2000;
         this.speed = 0.25 + Math.random() * 0.5;
 
@@ -34,17 +39,22 @@ class SmallChicken extends MovableObject {
 
 
 
-    animate() {
-        setInterval(() => {
-            this.playAnimation(this.IMAGES_WALKING);
-        }, 200)
+   animate() {
+    this.animationInterval = setInterval(() => { 
+        if (!this.isDying) { 
+        }
+    }, 200);
 
-        setInterval(() => {
+    this.moveInterval = setInterval(() => { 
+        if (!this.isDying) { 
             this.moveLeft();
-            if (!this.isAboveGround()) {
-                this.jump();
-            }
-        }, 1000 / 60);
+        }
+    }, 1000 / 60);
 
-    }
+    this.jumpInterval = setInterval(() => {
+        if (!this.isDying && !this.isAboveGround()) {
+            this.jump();
+        }
+    }, 2000 + Math.random() * 1000);
+}
 }

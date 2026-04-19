@@ -28,7 +28,7 @@ class World {
     run() {
         setInterval(() => {
             this.checkCollisions();
-        }, 200);
+        }, 50);
 
         setInterval(() => {
             this.checkThrowObjects();
@@ -37,30 +37,43 @@ class World {
     }
 
     checkThrowObjects() {
-        if (this.keyboard.F && !this.lastThrow) {
-            this.lastThrow = true;
-            let bottle = new ThrowableObject(
-                this.character.x + 40,
-                this.character.y + this.character.height / 2,
-                this.character.otherDirection
-            );
-            this.throwableObjects.push(bottle);
-        }
-
-        if (!this.keyboard.F) {
-            this.lastThrow = false;
-        }
+    if (this.keyboard.F && !this.lastThrow && this.bottleBar.percentage >= 20) { // ✅ Mindestens 20 prüfen
+        this.lastThrow = true;
+        this.bottleBar.setPercentage(this.bottleBar.percentage - 20); // ✅ 20 abziehen
+        let bottle = new ThrowableObject(
+            this.character.x + 40,
+            this.character.y + this.character.height / 2,
+            this.character.otherDirection
+        );
+        this.throwableObjects.push(bottle);
     }
 
+    if (!this.keyboard.F) {
+        this.lastThrow = false;
+    }
+}
 
 
-   checkCollisions() {
-    this.level.enemies.forEach((enemy) => {
-        if (this.character.isColliding(enemy) && !this.character.isHurt()) {
+
+  checkCollisions() {
+   this.level.enemies.forEach((enemy, index) => {
+    if (this.character.isColliding(enemy) && !enemy.isDying) {
+        
+        let characterFeet = this.character.y + this.character.height - this.character.offset.bottom;
+        let enemyTop = enemy.y + enemy.offset.top;
+        
+        if (this.character.speedY < 0 && characterFeet < enemyTop + 60) { // ✅ Toleranz auf 60 erhöht
+            this.character.speedY = 15;
+            enemy.die();
+            setTimeout(() => {
+                this.level.enemies.splice(index, 1); 
+            }, 500);
+        } else if (!this.character.isHurt()) {
             this.character.hit();
             this.healthBar.setPercentage(this.character.energy);
         }
-    });
+    }
+});
 
     this.level.coins.forEach((coin, index) => {
         if (this.character.isColliding(coin)) {
@@ -68,8 +81,25 @@ class World {
             this.level.coins.splice(index, 1); 
         }
     });
-}
 
+    this.level.bottles.forEach((bottle, index) => {
+        if (this.character.isColliding(bottle) && this.bottleBar.percentage < 100) {
+            this.bottleBar.setPercentage(this.bottleBar.percentage + 20);
+            this.level.bottles.splice(index, 1); 
+        }
+    });
+
+
+    this.throwableObjects.forEach((bottle, index) => {
+        this.level.enemies.forEach((enemy) => {
+            if (bottle.isColliding(enemy) && !bottle.splashing) {
+                bottle.splash(this, index);
+            }
+        });
+    });
+
+    
+}
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -80,6 +110,7 @@ class World {
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.coins);
+         this.addObjectsToMap(this.level.bottles);
         this.addToMap(this.character);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.throwableObjects);
