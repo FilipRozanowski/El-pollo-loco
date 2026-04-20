@@ -39,17 +39,28 @@ class ThrowableObject extends MovableObject {
         }, 50);
     }
 
-    splash(world, index) {
-        this.splashing = true;
-        clearInterval(this.throwInterval);
-        clearInterval(this.animationInterval);
-        this.currentImage = 0;
-        let splashInterval = setInterval(() => {
-            this.playAnimation(this.IMAGES_SPLASH);
-            if (this.currentImage >= this.IMAGES_SPLASH.length) {
-                clearInterval(splashInterval);
-                world.throwableObjects.splice(index, 1);
+   splash(world, bottleIndex, enemy) {
+    this.splashing = true;
+    clearInterval(this.throwInterval);
+    clearInterval(this.animationInterval);
+    
+    if (enemy && !enemy.isDying) {
+        enemy.die();
+        setTimeout(() => {
+            const enemyIndex = world.level.enemies.indexOf(enemy);
+            if (enemyIndex !== -1) {
+                world.level.enemies.splice(enemyIndex, 1);
             }
-        }, 50);
+        }, 500);
     }
+
+    this.currentImage = 0;
+    let splashInterval = setInterval(() => {
+        this.playAnimation(this.IMAGES_SPLASH);
+        if (this.currentImage >= this.IMAGES_SPLASH.length) {
+            clearInterval(splashInterval);
+            world.throwableObjects.splice(bottleIndex, 1);
+        }
+    }, 50);
+}
 }
