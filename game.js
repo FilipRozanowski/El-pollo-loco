@@ -1,5 +1,6 @@
 let canvas;
 let world;
+let Level1;
 let keyboard = new Keyboard();
 let menuImage = new Image();
 menuImage.src = 'img/9_intro_outro_screens/start/startscreen_1.png';
@@ -112,6 +113,7 @@ function startGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.removeEventListener('mousemove', handleMenuHover);
     canvas.style.cursor = 'default';
+    level1 = createLevel1();
     world = new World(canvas, keyboard);
 }
 

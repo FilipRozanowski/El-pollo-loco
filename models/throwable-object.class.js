@@ -29,7 +29,7 @@ class ThrowableObject extends MovableObject {
     }
 
     throw() {
-        this.speedY = 20;
+        this.speedY = 18;
         this.applyGravity();
         this.throwInterval = setInterval(() => {
             this.x += this.otherDirection ? -10 : 10;
@@ -39,7 +39,7 @@ class ThrowableObject extends MovableObject {
         }, 50);
     }
 
-   splash(world, bottleIndex, enemy) {
+   splash(world, enemy) {
     this.splashing = true;
     clearInterval(this.throwInterval);
     clearInterval(this.animationInterval);
@@ -59,7 +59,10 @@ class ThrowableObject extends MovableObject {
         this.playAnimation(this.IMAGES_SPLASH);
         if (this.currentImage >= this.IMAGES_SPLASH.length) {
             clearInterval(splashInterval);
-            world.throwableObjects.splice(bottleIndex, 1);
+            const bottleIndex = world.throwableObjects.indexOf(this);
+            if (bottleIndex !== -1) {
+                world.throwableObjects.splice(bottleIndex, 1);
+            }
         }
     }, 50);
 }

@@ -1,3 +1,4 @@
+function createLevel1(){
 const level1 = new Level([
     new chicken(),
     new chicken(),
@@ -57,3 +58,5 @@ const level1 = new Level([
 
     ]
 );
+return level1;
+}
