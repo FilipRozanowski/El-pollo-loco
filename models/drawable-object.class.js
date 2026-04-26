@@ -27,11 +27,12 @@ class DrawableObject {
         });
     }
 
+
    drawFrame(ctx) {
-    if (this instanceof Character || this instanceof chicken || this instanceof SmallChicken) {
+   /* if (this instanceof Character || this instanceof chicken || this instanceof SmallChicken) {
         ctx.beginPath();
-        ctx.lineWidth = '5';
-        ctx.strokeStyle = 'blue';
+       ctx.lineWidth = '5';
+    ctx.strokeStyle = 'blue';
         ctx.rect(
             this.x + this.offset.left, 
             this.y + this.offset.top, 
@@ -39,7 +40,7 @@ class DrawableObject {
             this.height - this.offset.top - this.offset.bottom
         );
         ctx.stroke();
-    }
+    }*/
 }
 
 

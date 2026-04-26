@@ -57,19 +57,22 @@ class World {
 
 
    checkCollisions() {
+    let killedByJump = false;
+
     this.level.enemies.forEach((enemy, index) => {
         if (this.character.isColliding(enemy) && !enemy.isDying) {
 
             let characterFeet = this.character.y + this.character.height - this.character.offset.bottom;
-            let enemyTop = enemy.y + enemy.offset.top;
+            let enemyCenter = enemy.y + enemy.height / 2;
 
-            if (this.character.speedY < 0 && characterFeet < enemyTop + 60 && !(enemy instanceof Endboss)) {
+            if (this.character.speedY < 0 && characterFeet < enemyCenter && !(enemy instanceof Endboss)) {
                 this.character.speedY = 20;
                 enemy.die();
+                killedByJump = true;
                 setTimeout(() => {
                     this.level.enemies.splice(index, 1);
                 }, 500);
-            } else if (!this.character.isHurt()) {
+            } else if (!this.character.isHurt() && !killedByJump) {
                 this.character.hit();
                 this.healthBar.setPercentage(this.character.energy);
             }
@@ -90,13 +93,13 @@ class World {
         }
     });
 
-   this.throwableObjects.forEach((bottle) => {
-    this.level.enemies.forEach((enemy) => {
-        if (bottle.isColliding(enemy) && !bottle.splashing) {
-            bottle.splash(this, enemy);
-        }
+    this.throwableObjects.forEach((bottle) => {
+        this.level.enemies.forEach((enemy) => {
+            if (bottle.isColliding(enemy) && !bottle.splashing) {
+                bottle.splash(this, enemy);
+            }
+        });
     });
-});
 }
 
     draw() {
