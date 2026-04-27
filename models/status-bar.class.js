@@ -25,19 +25,28 @@ class StatusBar extends DrawableObject {
         'img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/80.png',
         'img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/100.png'
     ];
+    IMAGES_ENDBOSSHEALTH = [
+        'img/7_statusbars/2_statusbar_endboss/green/green0.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green20.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green40.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green60.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green80.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green100.png'
+    ];
 
     constructor(type, x, y) {
         super();
         this.loadImages(this.IMAGES_HEALTHBAR);
         this.loadImages(this.IMAGES_COINBAR);
         this.loadImages(this.IMAGES_BOTTLEBAR);
+         this.loadImages(this.IMAGES_ENDBOSSHEALTH);
         this.x = x;
         this.y = y;
         this.width = 210;
         this.height = 60;
         this.type = type;
 
-        if (this.type === 'health') {
+        if (this.type === 'health' || this.type === 'endboss') {
             this.setPercentage(100);
         } else {
             this.setPercentage(0);
@@ -45,15 +54,16 @@ class StatusBar extends DrawableObject {
     }
 
     setPercentage(percentage) {
-        this.percentage = percentage;
-        let images;
-        if (this.type === 'health') images = this.IMAGES_HEALTHBAR;
-        else if (this.type === 'coin') images = this.IMAGES_COINBAR;
-        else if (this.type === 'bottle') images = this.IMAGES_BOTTLEBAR;
+    this.percentage = percentage;
+    let images;
+    if (this.type === 'health') images = this.IMAGES_HEALTHBAR;
+    else if (this.type === 'coin') images = this.IMAGES_COINBAR;
+    else if (this.type === 'bottle') images = this.IMAGES_BOTTLEBAR;
+    else if (this.type === 'endboss') images = this.IMAGES_ENDBOSSHEALTH;
 
-        let path = images[this.resolveImageIndex()];
-        this.img = this.imageCache[path];
-    }
+    let path = images[this.resolveImageIndex()];
+    this.img = this.imageCache[path];
+}
 
     resolveImageIndex() {
         if (this.percentage == 100) {

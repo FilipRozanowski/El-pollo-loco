@@ -5,6 +5,8 @@ class World {
     canvas;
     keyboard;
     camera_x = 0;
+    bossVisible = false;
+    endbossBar = new StatusBar('endboss', 500, -10);
     healthBar = new StatusBar('health', 0, -10);
     coinBar = new StatusBar('coin', 0, 30);
     bottleBar = new StatusBar('bottle', 0, 80);
@@ -28,6 +30,7 @@ class World {
     run() {
         setInterval(() => {
             this.checkCollisions();
+            this.checkBossVisibility();
         }, 50);
 
         setInterval(() => {
@@ -35,6 +38,13 @@ class World {
         }, 10);
 
     }
+
+    checkBossVisibility() {
+    const boss = this.level.enemies.find(e => e instanceof Endboss);
+    if (boss && boss.x + this.camera_x < this.canvas.width) {
+        this.bossVisible = true;
+    }
+}
 
    checkThrowObjects() {
     const now = Date.now();
@@ -65,14 +75,17 @@ class World {
             let characterFeet = this.character.y + this.character.height - this.character.offset.bottom;
             let enemyCenter = enemy.y + enemy.height / 2;
 
-            if (this.character.speedY < 0 && characterFeet < enemyCenter && !(enemy instanceof Endboss)) {
-                this.character.speedY = 20;
-                enemy.die();
-                killedByJump = true;
-                setTimeout(() => {
-                    this.level.enemies.splice(index, 1);
-                }, 500);
-            } else if (!this.character.isHurt() && !killedByJump) {
+           if (this.character.speedY < 0 && characterFeet < enemyCenter && !(enemy instanceof Endboss)) {
+    this.character.speedY = 20;
+    enemy.die();
+    killedByJump = true;
+    setTimeout(() => {
+        const i = this.level.enemies.indexOf(enemy);
+        if (i !== -1) {
+            this.level.enemies.splice(i, 1);
+        }
+    }, 500);
+} else if (!this.character.isHurt() && !killedByJump) {
                 this.character.hit();
                 this.healthBar.setPercentage(this.character.energy);
             }
@@ -93,13 +106,17 @@ class World {
         }
     });
 
-    this.throwableObjects.forEach((bottle) => {
-        this.level.enemies.forEach((enemy) => {
-            if (bottle.isColliding(enemy) && !bottle.splashing) {
-                bottle.splash(this, enemy);
+  
+this.throwableObjects.forEach((bottle) => {
+    this.level.enemies.forEach((enemy) => {
+        if (bottle.isColliding(enemy) && !bottle.splashing) {
+            bottle.splash(this, enemy);
+            if (enemy instanceof Endboss) {
+                this.endbossBar.setPercentage(enemy.energy); // kein hit() mehr hier
             }
-        });
+        }
     });
+});
 }
 
     draw() {
@@ -120,6 +137,10 @@ class World {
         this.addToMap(this.healthBar);
         this.addToMap(this.coinBar);
         this.addToMap(this.bottleBar);
+
+        if (this.bossVisible) {
+    this.addToMap(this.endbossBar);
+}
 
         let self = this;
         requestAnimationFrame(function () {
