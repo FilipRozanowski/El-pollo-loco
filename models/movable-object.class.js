@@ -21,6 +21,7 @@ class MovableObject extends DrawableObject {
 
     jump() {
         this.speedY = 25;
+         this.currentImage = 0;
     }
 
     hit() {
@@ -35,7 +36,7 @@ class MovableObject extends DrawableObject {
     isHurt() {
         let timepassed = new Date().getTime() - this.lastHit;
         timepassed = timepassed / 1000;
-        return timepassed < 1;
+        return timepassed < 0.5;
     }
 
     isDead() {
@@ -64,6 +65,15 @@ class MovableObject extends DrawableObject {
     moveLeft() {
         this.x -= this.speed;
     }
+
+    playAnimationOnce(images) {
+    let i = Math.min(this.currentImage, images.length - 1);
+    let path = images[i];
+    this.img = this.imageCache[path];
+    if (this.currentImage < images.length - 1) {
+        this.currentImage++;
+    }
+}
 
     playAnimation(images) {
         let i = this.currentImage % images.length;
