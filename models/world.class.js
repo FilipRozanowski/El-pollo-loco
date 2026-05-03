@@ -70,77 +70,81 @@ class World {
 
 
 
-   checkCollisions() {
-    let killedByJump = false;
+    checkCollisions() {
+        let killedByJump = false;
 
-    this.level.enemies.forEach((enemy, index) => {
-        if (this.character.isColliding(enemy) && !enemy.isDying) {
+        this.level.enemies.forEach((enemy, index) => {
+            if (this.character.isColliding(enemy) && !enemy.isDying) {
 
-            let characterFeet = this.character.y + this.character.height - this.character.offset.bottom;
-            let enemyCenter = enemy.y + enemy.height / 2;
+                let characterFeet = this.character.y + this.character.height - this.character.offset.bottom;
+                let enemyCenter = enemy.y + enemy.height / 2;
 
-            if (this.character.speedY < 0 && characterFeet < enemyCenter && !(enemy instanceof Endboss)) {
-                this.character.speedY = 20;
-                 this.character.jumpCurrentImage = 0;
-    this.character.jumpingUp = true;     
-                enemy.die();
-                killedByJump = true;
-                this.character.lastHit = new Date().getTime() - 1001;
-                setTimeout(() => {
-                    const i = this.level.enemies.indexOf(enemy);
-                    if (i !== -1) {
-                        this.level.enemies.splice(i, 1);
-                    }
-                }, 500);
-                return;
-            }
-
-            if (!this.character.isHurt() && !killedByJump) {
-                this.character.hit();
-                this.healthBar.setPercentage(this.character.energy);
-                if (this.character.isDead() && !this.gameOver) {
-                    this.gameOver = true;
+                if (this.character.speedY < 0 && characterFeet < enemyCenter && !(enemy instanceof Endboss)) {
+                    this.character.speedY = 20;
+                    this.character.jumpCurrentImage = 0;
+                    this.character.jumpingUp = true;
+                    enemy.die();
+                    killedByJump = true;
+                    this.character.lastHit = new Date().getTime() - 1001;
                     setTimeout(() => {
-                        this.gameEnded = true;
-                        this.endscreen.show(this.ctx, this.canvas, 'lose');
-                    }, 1000);
+                        const i = this.level.enemies.indexOf(enemy);
+                        if (i !== -1) {
+                            this.level.enemies.splice(i, 1);
+                        }
+                    }, 500);
+                    return;
                 }
-            }
-        }
-    });
 
-    this.level.coins.forEach((coin, index) => {
-        if (this.character.isColliding(coin)) {
-            this.coinBar.setPercentage(this.coinBar.percentage + 20);
-            this.level.coins.splice(index, 1);
-        }
-    });
-
-    this.level.bottles.forEach((bottle, index) => {
-        if (this.character.isColliding(bottle) && this.bottleBar.percentage < 100) {
-            this.bottleBar.setPercentage(this.bottleBar.percentage + 20);
-            this.level.bottles.splice(index, 1);
-        }
-    });
-
-    this.throwableObjects.forEach((bottle) => {
-        this.level.enemies.forEach((enemy) => {
-            if (bottle.isColliding(enemy) && !bottle.splashing) {
-                bottle.splash(this, enemy);
-                if (enemy instanceof Endboss) {
-                    this.endbossBar.setPercentage(enemy.energy);
-                    if (enemy.energy <= 0 && !this.gameOver) {
+                if (!this.character.isHurt() && !killedByJump) {
+                    this.character.hit();
+                    this.healthBar.setPercentage(this.character.energy);
+                    if (this.character.isDead() && !this.gameOver) {
                         this.gameOver = true;
-                        enemy.onDeath = () => {
+                        setTimeout(() => {
                             this.gameEnded = true;
-                            this.endscreen.show(this.ctx, this.canvas, 'won');
-                        };
+                            this.canvas._endType = 'lose';
+                            this.canvas._bgSnapshot = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                            this.endscreen.show(this.ctx, this.canvas, 'lose');
+                        }, 900);
                     }
                 }
             }
         });
-    });
-}
+
+        this.level.coins.forEach((coin, index) => {
+            if (this.character.isColliding(coin)) {
+                this.coinBar.setPercentage(this.coinBar.percentage + 20);
+                this.level.coins.splice(index, 1);
+            }
+        });
+
+        this.level.bottles.forEach((bottle, index) => {
+            if (this.character.isColliding(bottle) && this.bottleBar.percentage < 100) {
+                this.bottleBar.setPercentage(this.bottleBar.percentage + 20);
+                this.level.bottles.splice(index, 1);
+            }
+        });
+
+        this.throwableObjects.forEach((bottle) => {
+            this.level.enemies.forEach((enemy) => {
+                if (bottle.isColliding(enemy) && !bottle.splashing) {
+                    bottle.splash(this, enemy);
+                    if (enemy instanceof Endboss) {
+                        this.endbossBar.setPercentage(enemy.energy);
+                        if (enemy.energy <= 0 && !this.gameOver) {
+                            this.gameOver = true;
+                            enemy.onDeath = () => {
+                                this.gameEnded = true;
+                                this.canvas._endType = 'won';
+                                this.canvas._bgSnapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                                this.endscreen.show(this.ctx, this.canvas, 'won');
+                            };
+                        }
+                    }
+                }
+            });
+        });
+    }
 
     draw() {
         if (this.gameEnded) return;
