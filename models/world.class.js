@@ -15,16 +15,32 @@ class World {
     gameOver = false;
     gameEnded = false;
 
-
-
     constructor(canvas, keyboard) {
-        this.ctx = canvas.getContext('2d');
-        this.canvas = canvas;
-        this.keyboard = keyboard;
-        this.draw();
-        this.setWorld();
-        this.run();
+    this.ctx = canvas.getContext('2d');
+    this.canvas = canvas;
+    this.keyboard = keyboard;
+    this.draw();
+    this.setWorld();
+    this.run();
+
+
+    if (canvas._muteHandler) {
+        canvas.removeEventListener('click', canvas._muteHandler);
     }
+
+    canvas._muteHandler = (e) => {
+        let rect = this.canvas.getBoundingClientRect();
+        let scaleX = this.canvas.width / rect.width;
+        let scaleY = this.canvas.height / rect.height;
+        let x = (e.clientX - rect.left) * scaleX;
+        let y = (e.clientY - rect.top) * scaleY;
+        const bx = this.canvas.width - 50, by = this.canvas.height - 45;
+        if (Math.hypot(x - bx, y - by) <= 18) {
+            soundManager.toggleMute();
+        }
+    };
+    canvas.addEventListener('click', canvas._muteHandler);
+}
 
     setWorld() {
         this.character.world = this;
@@ -39,7 +55,6 @@ class World {
         setInterval(() => {
             this.checkThrowObjects();
         }, 10);
-
     }
 
     checkBossVisibility() {
@@ -67,8 +82,6 @@ class World {
             this.lastThrow = false;
         }
     }
-
-
 
     checkCollisions() {
         let killedByJump = false;
@@ -102,8 +115,10 @@ class World {
                         this.gameOver = true;
                         setTimeout(() => {
                             this.gameEnded = true;
+                            soundManager.stop('jump');
+                            soundManager.stop('walk');
                             this.canvas._endType = 'lose';
-                            this.canvas._bgSnapshot = ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                            this.canvas._bgSnapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
                             this.endscreen.show(this.ctx, this.canvas, 'lose');
                         }, 900);
                     }
@@ -135,6 +150,8 @@ class World {
                             this.gameOver = true;
                             enemy.onDeath = () => {
                                 this.gameEnded = true;
+                                soundManager.stop('jump');
+                                soundManager.stop('walk');
                                 this.canvas._endType = 'won';
                                 this.canvas._bgSnapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
                                 this.endscreen.show(this.ctx, this.canvas, 'won');
@@ -149,8 +166,6 @@ class World {
     draw() {
         if (this.gameEnded) return;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-
 
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
@@ -170,10 +185,25 @@ class World {
             this.addToMap(this.endbossBar);
         }
 
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
+        this.drawMuteButton();
+
+        requestAnimationFrame(() => {
+            this.draw();
         });
+    }
+
+    drawMuteButton() {
+        const x = this.canvas.width - 50, y = this.canvas.height - 45;
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 18, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.font = '18px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(soundManager.muted ? '🔇' : '🔊', x, y);
+        this.ctx.restore();
     }
 
     addObjectsToMap(objects) {

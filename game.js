@@ -5,6 +5,7 @@ let keyboard = new Keyboard();
 let menuImage = new Image();
 let menuOpen = false;
 let impressumScrollY = 0;
+let soundManager = new SoundManager();
 menuImage.src = 'img/9_intro_outro_screens/start/startscreen_1.png';
 
 const IMPRESSUM_LINES = [

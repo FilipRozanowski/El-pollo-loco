@@ -97,6 +97,12 @@ class Endscreen {
     cleanup(canvas) {
         canvas.removeEventListener('click', this._clickHandler);
         canvas.removeEventListener('mousemove', this._hoverHandler);
+
+         if (canvas._muteHandler) {
+        canvas.removeEventListener('click', canvas._muteHandler);
+        canvas._muteHandler = null;
+    }
+
         canvas.style.cursor = 'default';
     }
 
