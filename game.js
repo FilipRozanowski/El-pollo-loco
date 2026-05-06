@@ -295,6 +295,7 @@ function startGame() {
     canvas.style.cursor = 'default';
     level1 = createLevel1();
     world = new World(canvas, keyboard);
+    soundManager.startMusic();
 }
 
 function showHowToPlay(hoverBack = false) {

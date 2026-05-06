@@ -166,7 +166,7 @@ class Character extends MovableObject {
             this.energy = 0;
         }
         this.lastHit = new Date().getTime();
-        soundManager.play('hurt');
+        soundManager.play('hit');
         this.knockback();
     }
 

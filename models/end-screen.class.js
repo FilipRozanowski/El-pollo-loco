@@ -84,12 +84,15 @@ class Endscreen {
 
         if (x >= btnX && x <= btnX + btnW && y >= 345 && y <= 385) {
             this.cleanup(canvas);
+            soundManager.stopAll();
             level1 = createLevel1();
             world = new World(canvas, keyboard);
+             soundManager.startMusic();
         }
 
         if (x >= btnX && x <= btnX + btnW && y >= 405 && y <= 445) {
             this.cleanup(canvas);
+             soundManager.stopAll();
             drawMainMenu();
         }
     }

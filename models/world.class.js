@@ -16,46 +16,51 @@ class World {
     gameEnded = false;
 
     constructor(canvas, keyboard) {
-    this.ctx = canvas.getContext('2d');
-    this.canvas = canvas;
-    this.keyboard = keyboard;
-    this.draw();
-    this.setWorld();
-    this.run();
+        this.ctx = canvas.getContext('2d');
+        this.canvas = canvas;
+        this.keyboard = keyboard;
+        this.draw();
+        this.setWorld();
+        this.run();
 
 
-    if (canvas._muteHandler) {
-        canvas.removeEventListener('click', canvas._muteHandler);
-    }
-
-    canvas._muteHandler = (e) => {
-        let rect = this.canvas.getBoundingClientRect();
-        let scaleX = this.canvas.width / rect.width;
-        let scaleY = this.canvas.height / rect.height;
-        let x = (e.clientX - rect.left) * scaleX;
-        let y = (e.clientY - rect.top) * scaleY;
-        const bx = this.canvas.width - 50, by = this.canvas.height - 45;
-        if (Math.hypot(x - bx, y - by) <= 18) {
-            soundManager.toggleMute();
+        if (canvas._muteHandler) {
+            canvas.removeEventListener('click', canvas._muteHandler);
         }
-    };
-    canvas.addEventListener('click', canvas._muteHandler);
-}
+
+        canvas._muteHandler = (e) => {
+            let rect = this.canvas.getBoundingClientRect();
+            let scaleX = this.canvas.width / rect.width;
+            let scaleY = this.canvas.height / rect.height;
+            let x = (e.clientX - rect.left) * scaleX;
+            let y = (e.clientY - rect.top) * scaleY;
+            const bx = this.canvas.width - 50, by = this.canvas.height - 45;
+            if (Math.hypot(x - bx, y - by) <= 18) {
+                soundManager.toggleMute();
+            }
+        };
+        canvas.addEventListener('click', canvas._muteHandler);
+    }
 
     setWorld() {
         this.character.world = this;
     }
 
-    run() {
-        setInterval(() => {
-            this.checkCollisions();
-            this.checkBossVisibility();
-        }, 50);
+  run() {
+    this.collisionInterval = setInterval(() => {
+        this.checkCollisions();
+        this.checkBossVisibility();
+    }, 50);
 
-        setInterval(() => {
-            this.checkThrowObjects();
-        }, 10);
-    }
+    this.throwInterval = setInterval(() => {
+        this.checkThrowObjects();
+    }, 10);
+}
+
+stopIntervals() {
+    clearInterval(this.collisionInterval);
+    clearInterval(this.throwInterval);
+}
 
     checkBossVisibility() {
         const boss = this.level.enemies.find(e => e instanceof Endboss);
@@ -97,6 +102,7 @@ class World {
                     this.character.jumpCurrentImage = 0;
                     this.character.jumpingUp = true;
                     enemy.die();
+                    soundManager.play('chicken');
                     killedByJump = true;
                     this.character.lastHit = new Date().getTime() - 1001;
                     setTimeout(() => {
@@ -115,8 +121,9 @@ class World {
                         this.gameOver = true;
                         setTimeout(() => {
                             this.gameEnded = true;
-                            soundManager.stop('jump');
-                            soundManager.stop('walk');
+                             this.stopIntervals();
+                            soundManager.stopAll();
+                            soundManager.play('lose');
                             this.canvas._endType = 'lose';
                             this.canvas._bgSnapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
                             this.endscreen.show(this.ctx, this.canvas, 'lose');
@@ -145,13 +152,15 @@ class World {
                 if (bottle.isColliding(enemy) && !bottle.splashing) {
                     bottle.splash(this, enemy);
                     if (enemy instanceof Endboss) {
+                        soundManager.play('boss');
                         this.endbossBar.setPercentage(enemy.energy);
                         if (enemy.energy <= 0 && !this.gameOver) {
                             this.gameOver = true;
                             enemy.onDeath = () => {
                                 this.gameEnded = true;
-                                soundManager.stop('jump');
-                                soundManager.stop('walk');
+                                 this.stopIntervals();
+                                soundManager.stopAll();
+                                 soundManager.play('win');
                                 this.canvas._endType = 'won';
                                 this.canvas._bgSnapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
                                 this.endscreen.show(this.ctx, this.canvas, 'won');
