@@ -50,7 +50,7 @@ class World {
     handleMuteClick(e) {
         let { x, y } = this.getCanvasCoords(e);
         const bx = this.canvas.width - 50;
-        const by = this.canvas.height - 45;
+        const by = 45;
         if (Math.hypot(x - bx, y - by) <= 18) soundManager.toggleMute();
     }
 
@@ -341,7 +341,7 @@ class World {
      */
     drawMuteButton() {
         const x = this.canvas.width - 50;
-        const y = this.canvas.height - 45;
+        const y = 45;
         this.ctx.save();
         this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
         this.ctx.beginPath();

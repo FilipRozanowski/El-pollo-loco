@@ -13,6 +13,7 @@ const LINE_HEIGHT = 22;
 const BOX_X = 40, BOX_Y = 60, BOX_W = 640, BOX_H = 400;
 const CONTENT_TOP = BOX_Y + 50;
 const VISIBLE_HEIGHT = BOX_H - 60;
+
 const IMPRESSUM_LINES = [
     { text: 'Angaben gemäß 5 DDG', color: 'white' },
     { text: 'Filip Rozanowski', color: 'white' },
@@ -44,9 +45,9 @@ const IMPRESSUM_LINES = [
     { text: 'Sicherheitslücken aufweisen. Ein lückenloser', color: 'white' },
     { text: 'Schutz vor Datenzugriff Dritter ist nicht möglich.', color: 'white' },
 ];
-const TOTAL_CONTENT_HEIGHT = IMPRESSUM_LINES.length  * LINE_HEIGHT;
-const MAX_SCROLL = Math.max(0, TOTAL_CONTENT_HEIGHT - VISIBLE_HEIGHT);
 
+const TOTAL_CONTENT_HEIGHT = IMPRESSUM_LINES.length * LINE_HEIGHT;
+const MAX_SCROLL = Math.max(0, TOTAL_CONTENT_HEIGHT - VISIBLE_HEIGHT);
 
 
 /**
@@ -55,6 +56,7 @@ const MAX_SCROLL = Math.max(0, TOTAL_CONTENT_HEIGHT - VISIBLE_HEIGHT);
 function init() {
     canvas = document.getElementById('canvas');
     drawMainMenu();
+    initMobileControls();
 }
 
 
@@ -155,6 +157,7 @@ function drawMainMenu() {
     let ctx = canvas.getContext('2d');
     menuOpen = false;
     impressumScrollY = 0;
+    hideMobileControls();
 
     const render = () => {
         clearAndDrawBackground(ctx);
@@ -436,6 +439,7 @@ function handleMenuClick(event) {
  * Starts the game by initializing the level, world and music.
  */
 function startGame() {
+    showMobileControls();
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.style.cursor = 'default';
@@ -575,3 +579,126 @@ window.addEventListener('keyup', (event) => {
     if (event.keyCode == 32) keyboard.SPACE = false;
     if (event.keyCode == 70) keyboard.F = false;
 });
+
+
+// ──────────────────────────────────────────
+// Mobile Controls
+// ──────────────────────────────────────────
+
+/**
+ * Returns true if the current device is a touch device.
+ * @returns {boolean}
+ */
+function isTouchDevice() {
+    return window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+}
+
+
+/**
+ * Creates a single touch button and appends it to the given container.
+ * @param {string} label
+ * @param {string} key
+ * @param {string} id
+ * @param {HTMLElement} container
+ */
+function createTouchButton(label, key, id, container) {
+    const btn = document.createElement('button');
+    btn.id = id;
+    btn.textContent = label;
+    btn.className = 'mobile-btn';
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); keyboard[key] = true; }, { passive: false });
+    btn.addEventListener('touchend',   (e) => { e.preventDefault(); keyboard[key] = false; }, { passive: false });
+    container.appendChild(btn);
+}
+
+
+/**
+ * Creates the left-side control group (move left / move right).
+ * @returns {HTMLElement}
+ */
+function createLeftControls() {
+    const group = document.createElement('div');
+    group.id = 'controls-left';
+    createTouchButton('◀', 'LEFT',  'btn-left',  group);
+    createTouchButton('▶', 'RIGHT', 'btn-right', group);
+    return group;
+}
+
+
+/**
+ * Creates the right-side control group (throw / jump).
+ * @returns {HTMLElement}
+ */
+function createRightControls() {
+    const group = document.createElement('div');
+    group.id = 'controls-right';
+    createTouchButton('🍶', 'F',     'btn-throw', group);
+    createTouchButton('⬆',  'SPACE', 'btn-jump',  group);
+    return group;
+}
+
+
+/**
+ * Positions the mobile controls overlay to match the canvas position on screen.
+ * @param {HTMLElement} controls
+ */
+function positionControls(controls) {
+    const rect = canvas.getBoundingClientRect();
+    controls.style.position       = 'fixed';
+    controls.style.top            = rect.top    + 'px';
+    controls.style.left           = rect.left   + 'px';
+    controls.style.width          = rect.width  + 'px';
+    controls.style.height         = rect.height + 'px';
+    controls.style.display        = controls.style.display === 'none' ? 'none' : 'flex';
+    controls.style.justifyContent = 'space-between';
+    controls.style.alignItems     = 'flex-end';
+    controls.style.padding        = '16px';
+    controls.style.boxSizing      = 'border-box';
+    controls.style.zIndex         = '100';
+    controls.style.pointerEvents  = 'none';
+}
+
+
+/**
+ * Initializes and injects the mobile touch controls overlay over the canvas.
+ * Only runs on touch devices.
+ */
+function initMobileControls() {
+    if (!isTouchDevice()) return;
+
+    const controls = document.createElement('div');
+    controls.id = 'mobile-controls';
+    controls.style.display = 'none';
+    controls.appendChild(createLeftControls());
+    controls.appendChild(createRightControls());
+    document.body.appendChild(controls);
+
+    setTimeout(() => positionControls(controls), 200);
+
+    window.addEventListener('resize', () => setTimeout(() => positionControls(controls), 100));
+
+    if (screen.orientation) {
+        screen.orientation.addEventListener('change', () => setTimeout(() => positionControls(controls), 300));
+    }
+}
+
+
+/**
+ * Hides the mobile controls overlay.
+ */
+function hideMobileControls() {
+    const controls = document.getElementById('mobile-controls');
+    if (controls) controls.style.display = 'none';
+}
+
+
+/**
+ * Shows the mobile controls by positioning them over the canvas.
+ */
+function showMobileControls() {
+    if (!isTouchDevice()) return;
+    const controls = document.getElementById('mobile-controls');
+    if (!controls) return;
+    controls.style.display = 'flex';
+    positionControls(controls);
+}
