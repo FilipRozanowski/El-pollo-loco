@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El pollo loco</title>
     <link rel="stylesheet" href="style.css">
-
+ 
     <script src="models/drawable-object.class.js"></script>
     <script src="models/movable-object.class.js"></script>
     <script src="models/character.class.js"></script>
@@ -27,17 +27,28 @@
     <script src="levels/level1.js"></script>
     <script src="game.js"></script>
 </head>
-
+ 
 <body onload="init()">
-
+ 
     <h1>El pollo loco</h1>
-
-
-    <canvas id="canvas" width="720" height="480">
-
-
-    </canvas>
-
+ 
+    <div id="orientation-warning">
+        <p>📱 Bitte drehe dein Gerät ins Querformat!</p>
+    </div>
+ 
+    <canvas id="canvas" width="720" height="480">    </canvas>
+ 
+    <div id="mobile-controls">
+        <div id="controls-left">
+            <button id="btn-left"  ontouchstart="keyboard.LEFT  = true" ontouchend="keyboard.LEFT  = false">◀</button>
+            <button id="btn-right" ontouchstart="keyboard.RIGHT = true" ontouchend="keyboard.RIGHT = false">▶</button>
+        </div>
+        <div id="controls-right">
+            <button id="btn-throw"  ontouchstart="keyboard.F     = true" ontouchend="keyboard.F     = false">🍶</button>
+            <button id="btn-jump"   ontouchstart="keyboard.SPACE = true" ontouchend="keyboard.SPACE = false">⬆</button>
+        </div>
+    </div>
+ 
 </body>
-
+ 
 </html>

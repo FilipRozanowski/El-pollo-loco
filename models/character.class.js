@@ -11,6 +11,8 @@ class Character extends MovableObject {
     walkPlaying = false;
     jumpTriggered = false;
 
+    offset = { top: 120, bottom: 10, left: 20, right: 20 };
+
     IMAGES_IDLE = [
         'img/2_character_pepe/1_idle/idle/I-1.png',
         'img/2_character_pepe/1_idle/idle/I-2.png',
@@ -23,6 +25,7 @@ class Character extends MovableObject {
         'img/2_character_pepe/1_idle/idle/I-9.png',
         'img/2_character_pepe/1_idle/idle/I-10.png',
     ];
+
     IMAGES_WALKING = [
         'img/2_character_pepe/2_walk/W-21.png',
         'img/2_character_pepe/2_walk/W-22.png',
@@ -31,12 +34,14 @@ class Character extends MovableObject {
         'img/2_character_pepe/2_walk/W-25.png',
         'img/2_character_pepe/2_walk/W-26.png'
     ];
+
     IMAGES_JUMPING_UP = [
         'img/2_character_pepe/3_jump/J-31.png',
         'img/2_character_pepe/3_jump/J-32.png',
         'img/2_character_pepe/3_jump/J-33.png',
         'img/2_character_pepe/3_jump/J-34.png'
     ];
+
     IMAGES_JUMPING_DOWN = [
         'img/2_character_pepe/3_jump/J-35.png',
         'img/2_character_pepe/3_jump/J-36.png',
@@ -44,6 +49,7 @@ class Character extends MovableObject {
         'img/2_character_pepe/3_jump/J-38.png',
         'img/2_character_pepe/3_jump/J-39.png'
     ];
+
     IMAGES_DEAD = [
         'img/2_character_pepe/5_dead/D-51.png',
         'img/2_character_pepe/5_dead/D-52.png',
@@ -53,19 +59,17 @@ class Character extends MovableObject {
         'img/2_character_pepe/5_dead/D-56.png',
         'img/2_character_pepe/5_dead/D-57.png',
     ];
+
     IMAGES_HURT = [
         'img/2_character_pepe/4_hurt/H-41.png',
         'img/2_character_pepe/4_hurt/H-42.png',
         'img/2_character_pepe/4_hurt/H-43.png'
     ];
 
-    offset = {
-        top: 120,
-        bottom: 10,
-        left: 20,
-        right: 20
-    };
 
+    /**
+     * Creates the character, loads all images, applies gravity and starts animation.
+     */
     constructor() {
         super().loadImage('img/2_character_pepe/2_walk/W-21.png');
         this.loadImages(this.IMAGES_WALKING);
@@ -78,6 +82,10 @@ class Character extends MovableObject {
         this.animate();
     }
 
+
+    /**
+     * Makes the character jump and plays the jump sound.
+     */
     jump() {
         this.speedY = 25;
         this.jumpCurrentImage = 0;
@@ -85,28 +93,31 @@ class Character extends MovableObject {
         soundManager.play('jump');
     }
 
-    playJumpAnimation() {
-        if (this.speedY > 0) {
 
-            let i = Math.min(this.jumpCurrentImage, this.IMAGES_JUMPING_UP.length - 1);
-            this.img = this.imageCache[this.IMAGES_JUMPING_UP[i]];
-            if (this.jumpCurrentImage < this.IMAGES_JUMPING_UP.length - 1) this.jumpCurrentImage++;
-        } else {
-
-            if (this.jumpingUp) {
-                this.jumpCurrentImage = 0;
-                this.jumpingUp = false;
-            }
-            let i = Math.min(this.jumpCurrentImage, this.IMAGES_JUMPING_DOWN.length - 1);
-            this.img = this.imageCache[this.IMAGES_JUMPING_DOWN[i]];
-            if (this.jumpCurrentImage < this.IMAGES_JUMPING_DOWN.length - 1) this.jumpCurrentImage++;
-        }
+    /**
+     * Starts the movement interval and the animation interval.
+     */
+    animate() {
+        setInterval(() => this.handleMovement(), 1000 / 60);
+        setInterval(() => this.handleAnimation(), 100);
     }
 
-    animate() {
-    setInterval(() => {
-         if (this.world.gameEnded) return;
 
+    /**
+     * Handles keyboard-based movement and camera tracking each frame.
+     */
+    handleMovement() {
+        if (this.world.gameEnded) return;
+        this.handleHorizontalMovement();
+        this.handleJumpInput();
+        this.world.camera_x = -this.x + 100;
+    }
+
+
+    /**
+     * Moves the character left or right based on keyboard input.
+     */
+    handleHorizontalMovement() {
         if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
             this.moveRight();
             this.otherDirection = false;
@@ -115,35 +126,51 @@ class Character extends MovableObject {
             this.moveLeft();
             this.otherDirection = true;
         }
-        this.world.camera_x = -this.x + 100;
-
-         if (this.world.keyboard.SPACE && !this.isAboveGround() && !this.jumpTriggered) {
-        this.jumpTriggered = true;  
-        this.jump();
     }
-    if (!this.world.keyboard.SPACE) {
-        this.jumpTriggered = false; 
-    }
-    }, 1000 / 60);
 
-   setInterval(() => {
-     if (this.world.gameEnded) return;
 
-    if (this.isDead()) {
-        if (!this.deathAnimationDone) {
-            let i = this.currentImage % this.IMAGES_DEAD.length;
-            this.img = this.imageCache[this.IMAGES_DEAD[i]];
-            this.currentImage++;
-            if (this.currentImage >= this.IMAGES_DEAD.length) {
-                this.deathAnimationDone = true;
-            }
+    /**
+     * Triggers a jump on SPACE press, prevents repeat until key is released.
+     */
+    handleJumpInput() {
+        if (this.world.keyboard.SPACE && !this.isAboveGround() && !this.jumpTriggered) {
+            this.jumpTriggered = true;
+            this.jump();
         }
-    } else if (this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
-    } else if (this.isAboveGround()) {
-        this.playJumpAnimation();
-    } else {
-        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+        if (!this.world.keyboard.SPACE) this.jumpTriggered = false;
+    }
+
+
+    /**
+     * Chooses and plays the correct animation frame based on character state.
+     */
+    handleAnimation() {
+        if (this.world.gameEnded) return;
+        if (this.isDead()) this.playDeathAnimation();
+        else if (this.isHurt()) this.playAnimation(this.IMAGES_HURT);
+        else if (this.isAboveGround()) this.playJumpAnimation();
+        else this.playGroundAnimation();
+    }
+
+
+    /**
+     * Plays the death animation frame by frame and stops at the last frame.
+     */
+    playDeathAnimation() {
+        if (this.deathAnimationDone) return;
+        let i = this.currentImage % this.IMAGES_DEAD.length;
+        this.img = this.imageCache[this.IMAGES_DEAD[i]];
+        this.currentImage++;
+        if (this.currentImage >= this.IMAGES_DEAD.length) this.deathAnimationDone = true;
+    }
+
+
+    /**
+     * Plays walk or idle animation and manages walk sound accordingly.
+     */
+    playGroundAnimation() {
+        const moving = this.world.keyboard.RIGHT || this.world.keyboard.LEFT;
+        if (moving) {
             this.playAnimation(this.IMAGES_WALKING);
             if (!this.walkPlaying) {
                 this.walkPlaying = true;
@@ -157,31 +184,66 @@ class Character extends MovableObject {
             this.playAnimation(this.IMAGES_IDLE);
         }
     }
-}, 100);
-}
 
-    hit() {
-        this.energy -= 20;
-        if (this.energy < 0) {
-            this.energy = 0;
+
+    /**
+     * Plays the jump-up or jump-down animation based on vertical speed.
+     */
+    playJumpAnimation() {
+        if (this.speedY > 0) {
+            this.playJumpUpFrame();
+        } else {
+            this.playJumpDownFrame();
         }
+    }
+
+
+    /**
+     * Advances the jump-up animation one frame.
+     */
+    playJumpUpFrame() {
+        let i = Math.min(this.jumpCurrentImage, this.IMAGES_JUMPING_UP.length - 1);
+        this.img = this.imageCache[this.IMAGES_JUMPING_UP[i]];
+        if (this.jumpCurrentImage < this.IMAGES_JUMPING_UP.length - 1) this.jumpCurrentImage++;
+    }
+
+
+    /**
+     * Advances the jump-down animation one frame, resets index on transition.
+     */
+    playJumpDownFrame() {
+        if (this.jumpingUp) {
+            this.jumpCurrentImage = 0;
+            this.jumpingUp = false;
+        }
+        let i = Math.min(this.jumpCurrentImage, this.IMAGES_JUMPING_DOWN.length - 1);
+        this.img = this.imageCache[this.IMAGES_JUMPING_DOWN[i]];
+        if (this.jumpCurrentImage < this.IMAGES_JUMPING_DOWN.length - 1) this.jumpCurrentImage++;
+    }
+
+
+    /**
+     * Reduces energy, plays hit sound and triggers knockback.
+     */
+    hit() {
+        this.energy = Math.max(0, this.energy - 20);
         this.lastHit = new Date().getTime();
         soundManager.play('hit');
         this.knockback();
     }
 
-    knockback() {
-        let knockbackDirection = this.otherDirection ? 1 : -1;
-        let knockbackDistance = 30;
-        let steps = 0;
 
+    /**
+     * Pushes the character back and slightly upward when hit by an enemy.
+     */
+    knockback() {
+        let direction = this.otherDirection ? 1 : -1;
+        let steps = 0;
         let knockbackInterval = setInterval(() => {
-            this.x += knockbackDirection * 30;
-            this.speedY = steps === 0 ? 10 : this.speedY;
+            this.x += direction * 30;
+            if (steps === 0) this.speedY = 10;
             steps++;
-            if (steps >= knockbackDistance / 5) {
-                clearInterval(knockbackInterval);
-            }
+            if (steps >= 6) clearInterval(knockbackInterval);
         }, 1000 / 60);
     }
 }

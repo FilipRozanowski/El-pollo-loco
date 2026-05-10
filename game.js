@@ -1,13 +1,18 @@
 let canvas;
 let world;
-let Level1;
+let level1;
 let keyboard = new Keyboard();
-let menuImage = new Image();
 let menuOpen = false;
 let impressumScrollY = 0;
 let soundManager = new SoundManager();
+
+let menuImage = new Image();
 menuImage.src = 'img/9_intro_outro_screens/start/startscreen_1.png';
 
+const LINE_HEIGHT = 22;
+const BOX_X = 40, BOX_Y = 60, BOX_W = 640, BOX_H = 400;
+const CONTENT_TOP = BOX_Y + 50;
+const VISIBLE_HEIGHT = BOX_H - 60;
 const IMPRESSUM_LINES = [
     { text: 'Angaben gemäß 5 DDG', color: 'white' },
     { text: 'Filip Rozanowski', color: 'white' },
@@ -39,214 +44,60 @@ const IMPRESSUM_LINES = [
     { text: 'Sicherheitslücken aufweisen. Ein lückenloser', color: 'white' },
     { text: 'Schutz vor Datenzugriff Dritter ist nicht möglich.', color: 'white' },
 ];
-
-const LINE_HEIGHT = 22;
-const BOX_X = 40, BOX_Y = 60, BOX_W = 640, BOX_H = 400;
-const CONTENT_TOP = BOX_Y + 50;
-const VISIBLE_HEIGHT = BOX_H - 60;
-const TOTAL_CONTENT_HEIGHT = IMPRESSUM_LINES.length * LINE_HEIGHT;
+const TOTAL_CONTENT_HEIGHT = IMPRESSUM_LINES.length  * LINE_HEIGHT;
 const MAX_SCROLL = Math.max(0, TOTAL_CONTENT_HEIGHT - VISIBLE_HEIGHT);
 
+
+
+/**
+ * Initializes the game by getting the canvas and drawing the main menu.
+ */
 function init() {
     canvas = document.getElementById('canvas');
     drawMainMenu();
 }
 
-function drawMainMenu() {
-    let ctx = canvas.getContext('2d');
-    menuOpen = false;
-    impressumScrollY = 0;
 
-    const render = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(menuImage, 0, 0, canvas.width, canvas.height);
-        drawMenuButtons(ctx, false, false);
-        drawHamburgerIcon(ctx, false);
-
-        canvas.addEventListener('click', handleMenuClick);
-        canvas.addEventListener('click', handleHamburgerClick);
-        canvas.addEventListener('mousemove', handleMenuHover);
-        canvas.addEventListener('mousemove', handleHamburgerHover);
-        canvas.addEventListener('wheel', handleImpressumScroll, { passive: true });
+/**
+ * Returns the scaled mouse coordinates relative to the canvas.
+ * @param {MouseEvent} event
+ * @returns {{ x: number, y: number }}
+ */
+function getCanvasCoords(event) {
+    let rect = canvas.getBoundingClientRect();
+    let scaleX = canvas.width / rect.width;
+    let scaleY = canvas.height / rect.height;
+    return {
+        x: (event.clientX - rect.left) * scaleX,
+        y: (event.clientY - rect.top) * scaleY,
     };
-
-    if (menuImage.complete) {
-        render();
-    } else {
-        menuImage.onload = render;
-    }
 }
 
-function handleMenuHover(event) {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (event.clientX - rect.left) * scaleX;
-    let y = (event.clientY - rect.top) * scaleY;
 
-    let hoverStart = x >= 210 && x <= 360 && y >= 60 && y <= 105;
-    let hoverHow   = x >= 380 && x <= 530 && y >= 60 && y <= 105;
-
-    let ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(menuImage, 0, 0, canvas.width, canvas.height);
-    drawMenuButtons(ctx, hoverStart, hoverHow);
-    if (menuOpen) drawImpressum(ctx);
-    drawHamburgerIcon(ctx, menuOpen);
-
-    canvas.style.cursor = (hoverStart || hoverHow) ? 'pointer' : 'default';
+/**
+ * Checks whether given coordinates are inside a rectangular area.
+ * @param {number} x
+ * @param {number} y
+ * @param {number} x1
+ * @param {number} y1
+ * @param {number} x2
+ * @param {number} y2
+ * @returns {boolean}
+ */
+function isInside(x, y, x1, y1, x2, y2) {
+    return x >= x1 && x <= x2 && y >= y1 && y <= y2;
 }
 
-function drawMenuButtons(ctx, hoverStart = false, hoverHow = false) {
-    ctx.fillStyle = hoverStart ? '#ffd700' : '#f5c518';
-    ctx.shadowColor = hoverStart ? 'rgba(255,215,0,0.6)' : 'transparent';
-    ctx.shadowBlur = hoverStart ? 12 : 0;
-    roundRect(ctx, 210, 60, 150, 45, 8);
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
-    ctx.fillStyle = 'black';
-    ctx.font = 'bold 20px Zabra';
-    ctx.letterSpacing = '2px';
-    ctx.textAlign = 'center';
-    ctx.fillText('Start Game', 285, 89);
 
-    ctx.fillStyle = hoverHow ? '#ffd700' : '#f5c518';
-    ctx.shadowColor = hoverHow ? 'rgba(255,215,0,0.6)' : 'transparent';
-    ctx.shadowBlur = hoverHow ? 12 : 0;
-    roundRect(ctx, 380, 60, 150, 45, 8);
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
-    ctx.fillStyle = 'black';
-    ctx.font = 'bold 20px Zabra';
-    ctx.letterSpacing = '2px';
-    ctx.fillText('How to Play', 455, 89);
-}
-
-function drawHamburgerIcon(ctx, isOpen) {
-    const cx = 695, cy = 35, size = 18;
-    ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.beginPath();
-    ctx.arc(cx, cy, 20, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-
-    if (isOpen) {
-        ctx.beginPath();
-        ctx.moveTo(cx - size/2 + 3, cy - size/2 + 3);
-        ctx.lineTo(cx + size/2 - 3, cy + size/2 - 3);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(cx + size/2 - 3, cy - size/2 + 3);
-        ctx.lineTo(cx - size/2 + 3, cy + size/2 - 3);
-        ctx.stroke();
-    } else {
-        [-6, 0, 6].forEach(offset => {
-            ctx.beginPath();
-            ctx.moveTo(cx - size/2, cy + offset);
-            ctx.lineTo(cx + size/2, cy + offset);
-            ctx.stroke();
-        });
-    }
-    ctx.restore();
-}
-
-function drawImpressum(ctx) {
-    ctx.save();
-
-    // Hintergrund-Box
-    ctx.fillStyle = 'rgba(0,0,0,0.88)';
-    roundRect(ctx, BOX_X, BOX_Y, BOX_W, BOX_H, 12);
-
-    // Titel
-    ctx.fillStyle = '#f5c518';
-    ctx.font = 'bold 24px Zabra';
-    ctx.textAlign = 'center';
-    ctx.letterSpacing = '2px';
-    ctx.fillText('Impressum', 360, BOX_Y + 35);
-
-    // Scrollbaren Bereich clippen
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(BOX_X + 10, CONTENT_TOP, BOX_W - 30, VISIBLE_HEIGHT);
-    ctx.clip();
-
-    ctx.font = '14px Zabra';
-    ctx.letterSpacing = '1px';
-    IMPRESSUM_LINES.forEach((line, i) => {
-        ctx.fillStyle = line.color;
-        ctx.fillText(line.text, 360, CONTENT_TOP + 15 + i * LINE_HEIGHT - impressumScrollY);
-    });
-
-    ctx.restore();
-
-    // Scrollbar
-    if (MAX_SCROLL > 0) {
-        const scrollbarX = BOX_X + BOX_W - 14;
-        const scrollbarH = VISIBLE_HEIGHT;
-        const scrollbarY = CONTENT_TOP;
-
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.beginPath();
-        ctx.roundRect(scrollbarX, scrollbarY, 8, scrollbarH, 4);
-        ctx.fill();
-
-        const thumbH = Math.max(30, (VISIBLE_HEIGHT / TOTAL_CONTENT_HEIGHT) * scrollbarH);
-        const thumbY = scrollbarY + (impressumScrollY / MAX_SCROLL) * (scrollbarH - thumbH);
-        ctx.fillStyle = '#f5c518';
-        ctx.beginPath();
-        ctx.roundRect(scrollbarX, thumbY, 8, thumbH, 4);
-        ctx.fill();
-    }
-
-    ctx.restore();
-}
-
-function handleImpressumScroll(event) {
-    if (!menuOpen) return;
-    impressumScrollY += event.deltaY * 0.5;
-    impressumScrollY = Math.max(0, Math.min(MAX_SCROLL, impressumScrollY));
-
-    let ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(menuImage, 0, 0, canvas.width, canvas.height);
-    drawMenuButtons(ctx, false, false);
-    drawImpressum(ctx);
-    drawHamburgerIcon(ctx, true);
-}
-
-function handleHamburgerClick(event) {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (event.clientX - rect.left) * scaleX;
-    let y = (event.clientY - rect.top) * scaleY;
-
-    if (x >= 675 && x <= 715 && y >= 15 && y <= 55) {
-        menuOpen = !menuOpen;
-        impressumScrollY = 0;
-        let ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(menuImage, 0, 0, canvas.width, canvas.height);
-        drawMenuButtons(ctx, false, false);
-        if (menuOpen) drawImpressum(ctx);
-        drawHamburgerIcon(ctx, menuOpen);
-    }
-}
-
-function handleHamburgerHover(event) {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (event.clientX - rect.left) * scaleX;
-    let y = (event.clientY - rect.top) * scaleY;
-
-    const overHamburger = x >= 675 && x <= 715 && y >= 15 && y <= 55;
-    if (overHamburger) canvas.style.cursor = 'pointer';
-}
-
+/**
+ * Draws a filled rounded rectangle on the given canvas context.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @param {number} radius
+ */
 function roundRect(ctx, x, y, width, height, radius) {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
@@ -262,122 +113,446 @@ function roundRect(ctx, x, y, width, height, radius) {
     ctx.fill();
 }
 
-function handleMenuClick(event) {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (event.clientX - rect.left) * scaleX;
-    let y = (event.clientY - rect.top) * scaleY;
 
-    if (x >= 210 && x <= 360 && y >= 60 && y <= 105) {
-        canvas.removeEventListener('click', handleMenuClick);
-        canvas.removeEventListener('click', handleHamburgerClick);
-        canvas.removeEventListener('mousemove', handleMenuHover);
-        canvas.removeEventListener('mousemove', handleHamburgerHover);
-        canvas.removeEventListener('wheel', handleImpressumScroll);
+/**
+ * Clears the canvas and redraws the background menu image.
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function clearAndDrawBackground(ctx) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(menuImage, 0, 0, canvas.width, canvas.height);
+}
+
+
+/**
+ * Adds all event listeners needed for the main menu.
+ */
+function addMenuListeners() {
+    canvas.addEventListener('click', handleMenuClick);
+    canvas.addEventListener('click', handleHamburgerClick);
+    canvas.addEventListener('mousemove', handleMenuHover);
+    canvas.addEventListener('mousemove', handleHamburgerHover);
+    canvas.addEventListener('wheel', handleImpressumScroll, { passive: true });
+}
+
+
+/**
+ * Removes all event listeners used by the main menu.
+ */
+function removeMenuListeners() {
+    canvas.removeEventListener('click', handleMenuClick);
+    canvas.removeEventListener('click', handleHamburgerClick);
+    canvas.removeEventListener('mousemove', handleMenuHover);
+    canvas.removeEventListener('mousemove', handleHamburgerHover);
+    canvas.removeEventListener('wheel', handleImpressumScroll);
+}
+
+
+/**
+ * Draws the main menu screen and registers its event listeners.
+ */
+function drawMainMenu() {
+    let ctx = canvas.getContext('2d');
+    menuOpen = false;
+    impressumScrollY = 0;
+
+    const render = () => {
+        clearAndDrawBackground(ctx);
+        drawMenuButtons(ctx, false, false);
+        drawHamburgerIcon(ctx, false);
+        addMenuListeners();
+    };
+
+    if (menuImage.complete) render();
+    else menuImage.onload = render;
+}
+
+
+/**
+ * Draws a single menu button with optional hover state.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} x
+ * @param {number} y
+ * @param {string} label
+ * @param {boolean} hovered
+ */
+function drawSingleButton(ctx, x, y, label, hovered) {
+    ctx.fillStyle = hovered ? '#ffd700' : '#f5c518';
+    ctx.shadowColor = hovered ? 'rgba(255,215,0,0.6)' : 'transparent';
+    ctx.shadowBlur = hovered ? 12 : 0;
+    roundRect(ctx, x, y, 150, 45, 8);
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = 'black';
+    ctx.font = 'bold 20px Zabra';
+    ctx.letterSpacing = '2px';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x + 75, y + 29);
+}
+
+
+/**
+ * Draws both main menu buttons (Start Game and How to Play).
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {boolean} hoverStart
+ * @param {boolean} hoverHow
+ */
+function drawMenuButtons(ctx, hoverStart = false, hoverHow = false) {
+    drawSingleButton(ctx, 210, 60, 'Start Game', hoverStart);
+    drawSingleButton(ctx, 380, 60, 'How to Play', hoverHow);
+}
+
+
+/**
+ * Draws the hamburger / close icon in the top-right corner.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {boolean} isOpen
+ */
+function drawHamburgerIcon(ctx, isOpen) {
+    const cx = 695, cy = 35, size = 18;
+    ctx.save();
+    drawHamburgerBackground(ctx, cx, cy);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    if (isOpen) drawCloseLines(ctx, cx, cy, size);
+    else drawHamburgerLines(ctx, cx, cy, size);
+    ctx.restore();
+}
+
+
+/**
+ * Draws the circular background for the hamburger icon.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} cx
+ * @param {number} cy
+ */
+function drawHamburgerBackground(ctx, cx, cy) {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+
+/**
+ * Draws the X (close) lines for the hamburger icon.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} cx
+ * @param {number} cy
+ * @param {number} size
+ */
+function drawCloseLines(ctx, cx, cy, size) {
+    ctx.beginPath();
+    ctx.moveTo(cx - size / 2 + 3, cy - size / 2 + 3);
+    ctx.lineTo(cx + size / 2 - 3, cy + size / 2 - 3);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx + size / 2 - 3, cy - size / 2 + 3);
+    ctx.lineTo(cx - size / 2 + 3, cy + size / 2 - 3);
+    ctx.stroke();
+}
+
+
+/**
+ * Draws three horizontal lines for the hamburger icon.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} cx
+ * @param {number} cy
+ * @param {number} size
+ */
+function drawHamburgerLines(ctx, cx, cy, size) {
+    [-6, 0, 6].forEach(offset => {
+        ctx.beginPath();
+        ctx.moveTo(cx - size / 2, cy + offset);
+        ctx.lineTo(cx + size / 2, cy + offset);
+        ctx.stroke();
+    });
+}
+
+
+/**
+ * Draws the impressum overlay box including title, scrollable text and scrollbar.
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function drawImpressum(ctx) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.88)';
+    roundRect(ctx, BOX_X, BOX_Y, BOX_W, BOX_H, 12);
+    drawImpressumTitle(ctx);
+    drawImpressumText(ctx);
+    if (MAX_SCROLL > 0) drawScrollbar(ctx);
+    ctx.restore();
+}
+
+
+/**
+ * Draws the title of the impressum box.
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function drawImpressumTitle(ctx) {
+    ctx.fillStyle = '#f5c518';
+    ctx.font = 'bold 24px Zabra';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = '2px';
+    ctx.fillText('Impressum', 360, BOX_Y + 35);
+}
+
+
+/**
+ * Draws the scrollable text content of the impressum.
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function drawImpressumText(ctx) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(BOX_X + 10, CONTENT_TOP, BOX_W - 30, VISIBLE_HEIGHT);
+    ctx.clip();
+    ctx.font = '14px Zabra';
+    ctx.letterSpacing = '1px';
+    IMPRESSUM_LINES.forEach((line, i) => {
+        ctx.fillStyle = line.color;
+        ctx.fillText(line.text, 360, CONTENT_TOP + 15 + i * LINE_HEIGHT - impressumScrollY);
+    });
+    ctx.restore();
+}
+
+
+/**
+ * Draws the scrollbar for the impressum overlay.
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function drawScrollbar(ctx) {
+    const scrollbarX = BOX_X + BOX_W - 14;
+    const scrollbarH = VISIBLE_HEIGHT;
+    const scrollbarY = CONTENT_TOP;
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.beginPath();
+    ctx.roundRect(scrollbarX, scrollbarY, 8, scrollbarH, 4);
+    ctx.fill();
+    drawScrollbarThumb(ctx, scrollbarX, scrollbarY, scrollbarH);
+}
+
+
+/**
+ * Draws the thumb (draggable part) of the impressum scrollbar.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {number} scrollbarX
+ * @param {number} scrollbarY
+ * @param {number} scrollbarH
+ */
+function drawScrollbarThumb(ctx, scrollbarX, scrollbarY, scrollbarH) {
+    const thumbH = Math.max(30, (VISIBLE_HEIGHT / TOTAL_CONTENT_HEIGHT) * scrollbarH);
+    const thumbY = scrollbarY + (impressumScrollY / MAX_SCROLL) * (scrollbarH - thumbH);
+    ctx.fillStyle = '#f5c518';
+    ctx.beginPath();
+    ctx.roundRect(scrollbarX, thumbY, 8, thumbH, 4);
+    ctx.fill();
+}
+
+
+/**
+ * Redraws the full menu canvas (background, buttons, optional impressum, hamburger).
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function redrawMenu(ctx) {
+    clearAndDrawBackground(ctx);
+    drawMenuButtons(ctx, false, false);
+    if (menuOpen) drawImpressum(ctx);
+    drawHamburgerIcon(ctx, menuOpen);
+}
+
+
+/**
+ * Handles mouse hover on the main menu to highlight buttons.
+ * @param {MouseEvent} event
+ */
+function handleMenuHover(event) {
+    let { x, y } = getCanvasCoords(event);
+    let hoverStart = isInside(x, y, 210, 60, 360, 105);
+    let hoverHow = isInside(x, y, 380, 60, 530, 105);
+    let ctx = canvas.getContext('2d');
+    clearAndDrawBackground(ctx);
+    drawMenuButtons(ctx, hoverStart, hoverHow);
+    if (menuOpen) drawImpressum(ctx);
+    drawHamburgerIcon(ctx, menuOpen);
+    canvas.style.cursor = (hoverStart || hoverHow) ? 'pointer' : 'default';
+}
+
+
+/**
+ * Handles mouse hover over the hamburger icon.
+ * @param {MouseEvent} event
+ */
+function handleHamburgerHover(event) {
+    let { x, y } = getCanvasCoords(event);
+    if (isInside(x, y, 675, 15, 715, 55)) canvas.style.cursor = 'pointer';
+}
+
+
+/**
+ * Handles click on the hamburger icon to toggle the impressum.
+ * @param {MouseEvent} event
+ */
+function handleHamburgerClick(event) {
+    let { x, y } = getCanvasCoords(event);
+    if (!isInside(x, y, 675, 15, 715, 55)) return;
+    menuOpen = !menuOpen;
+    impressumScrollY = 0;
+    redrawMenu(canvas.getContext('2d'));
+}
+
+
+/**
+ * Handles scroll wheel input to scroll the impressum content.
+ * @param {WheelEvent} event
+ */
+function handleImpressumScroll(event) {
+    if (!menuOpen) return;
+    impressumScrollY += event.deltaY * 0.5;
+    impressumScrollY = Math.max(0, Math.min(MAX_SCROLL, impressumScrollY));
+    redrawMenu(canvas.getContext('2d'));
+}
+
+
+/**
+ * Handles clicks on the main menu buttons (Start Game / How to Play).
+ * @param {MouseEvent} event
+ */
+function handleMenuClick(event) {
+    let { x, y } = getCanvasCoords(event);
+    if (isInside(x, y, 210, 60, 360, 105)) {
+        removeMenuListeners();
         startGame();
     }
-
-    if (x >= 380 && x <= 530 && y >= 60 && y <= 105) {
-        canvas.removeEventListener('click', handleMenuClick);
-        canvas.removeEventListener('click', handleHamburgerClick);
-        canvas.removeEventListener('mousemove', handleMenuHover);
-        canvas.removeEventListener('mousemove', handleHamburgerHover);
-        canvas.removeEventListener('wheel', handleImpressumScroll);
+    if (isInside(x, y, 380, 60, 530, 105)) {
+        removeMenuListeners();
         showHowToPlay();
     }
 }
 
+
+/**
+ * Starts the game by initializing the level, world and music.
+ */
 function startGame() {
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.removeEventListener('mousemove', handleMenuHover);
     canvas.style.cursor = 'default';
     level1 = createLevel1();
     world = new World(canvas, keyboard);
     soundManager.startMusic();
 }
 
+
+/**
+ * Draws the "How to Play" screen with an optional hover state on the back button.
+ * @param {boolean} hoverBack
+ */
 function showHowToPlay(hoverBack = false) {
     let ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(menuImage, 0, 0, canvas.width, canvas.height);
+    clearAndDrawBackground(ctx);
+    drawHowToPlayBox(ctx);
+    drawHowToPlayText(ctx);
+    drawHowToPlayBackButton(ctx, hoverBack);
+    canvas.addEventListener('click', handleHowToPlayBack);
+    canvas.addEventListener('mousemove', handleHowToPlayHover);
+}
 
+
+/**
+ * Draws the dark background box for the How to Play overlay.
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function drawHowToPlayBox(ctx) {
     ctx.fillStyle = 'rgba(0,0,0,0.75)';
     roundRect(ctx, 150, 80, 420, 280, 12);
+}
 
+
+/**
+ * Draws the instructions text inside the How to Play overlay.
+ * @param {CanvasRenderingContext2D} ctx
+ */
+function drawHowToPlayText(ctx) {
     ctx.letterSpacing = '2px';
+    ctx.textAlign = 'center';
     ctx.fillStyle = '#f5c518';
     ctx.font = 'bold 26px Zabra';
-    ctx.textAlign = 'center';
     ctx.shadowColor = 'rgba(0,0,0,0.8)';
     ctx.shadowBlur = 4;
     ctx.shadowOffsetX = 1;
     ctx.shadowOffsetY = 1;
     ctx.fillText('How to Play', 360, 120);
-
     ctx.fillStyle = 'white';
     ctx.font = '20px Zabra';
-    ctx.letterSpacing = '2px';
     ctx.fillText('⬅ A  /  D ➡   –   Bewegen', 360, 165);
     ctx.fillText('SPACE   –   Springen', 360, 200);
     ctx.fillText('F   –   Flasche werfen', 360, 235);
     ctx.fillText('Auf Hühner springen um sie zu töten!', 360, 270);
-
     ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
+}
 
-    ctx.fillStyle = hoverBack ? '#ffd700' : '#f5c518';
-    ctx.shadowColor = hoverBack ? 'rgba(255,215,0,0.6)' : 'transparent';
-    ctx.shadowBlur = hoverBack ? 12 : 0;
+
+/**
+ * Draws the back button on the How to Play screen.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {boolean} hovered
+ */
+function drawHowToPlayBackButton(ctx, hovered) {
+    ctx.fillStyle = hovered ? '#ffd700' : '#f5c518';
+    ctx.shadowColor = hovered ? 'rgba(255,215,0,0.6)' : 'transparent';
+    ctx.shadowBlur = hovered ? 12 : 0;
     roundRect(ctx, 285, 295, 150, 42, 8);
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
     ctx.fillStyle = 'black';
     ctx.font = 'bold 18px Zabra';
     ctx.letterSpacing = '2px';
+    ctx.textAlign = 'center';
     ctx.fillText('← Zurück', 360, 322);
-
-    canvas.addEventListener('click', handleHowToPlayBack);
-    canvas.addEventListener('mousemove', handleHowToPlayHover);
 }
 
+
+/**
+ * Handles mouse hover on the How to Play screen's back button.
+ * @param {MouseEvent} event
+ */
 function handleHowToPlayHover(event) {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (event.clientX - rect.left) * scaleX;
-    let y = (event.clientY - rect.top) * scaleY;
-
-    let hoverBack = x >= 285 && x <= 435 && y >= 295 && y <= 337;
+    let { x, y } = getCanvasCoords(event);
+    let hoverBack = isInside(x, y, 285, 295, 435, 337);
     canvas.style.cursor = hoverBack ? 'pointer' : 'default';
-
     canvas.removeEventListener('click', handleHowToPlayBack);
     canvas.removeEventListener('mousemove', handleHowToPlayHover);
     showHowToPlay(hoverBack);
 }
 
-function handleHowToPlayBack(event) {
-    let rect = canvas.getBoundingClientRect();
-    let scaleX = canvas.width / rect.width;
-    let scaleY = canvas.height / rect.height;
-    let x = (event.clientX - rect.left) * scaleX;
-    let y = (event.clientY - rect.top) * scaleY;
 
-    if (x >= 285 && x <= 435 && y >= 295 && y <= 337) {
-        canvas.removeEventListener('click', handleHowToPlayBack);
-        canvas.removeEventListener('mousemove', handleHowToPlayHover);
-        canvas.style.cursor = 'default';
-        drawMainMenu();
-    }
+/**
+ * Handles click on the back button of the How to Play screen.
+ * @param {MouseEvent} event
+ */
+function handleHowToPlayBack(event) {
+    let { x, y } = getCanvasCoords(event);
+    if (!isInside(x, y, 285, 295, 435, 337)) return;
+    canvas.removeEventListener('click', handleHowToPlayBack);
+    canvas.removeEventListener('mousemove', handleHowToPlayHover);
+    canvas.style.cursor = 'default';
+    drawMainMenu();
 }
+
 
 // ──────────────────────────────────────────
 // Keyboard Events
 // ──────────────────────────────────────────
 
+/**
+ * Sets the corresponding keyboard state to true on key press.
+ * @param {KeyboardEvent} event
+ */
 window.addEventListener('keydown', (event) => {
     if (event.keyCode == 68) keyboard.RIGHT = true;
     if (event.keyCode == 65) keyboard.LEFT = true;
@@ -387,6 +562,11 @@ window.addEventListener('keydown', (event) => {
     if (event.keyCode == 70) keyboard.F = true;
 });
 
+
+/**
+ * Sets the corresponding keyboard state to false on key release.
+ * @param {KeyboardEvent} event
+ */
 window.addEventListener('keyup', (event) => {
     if (event.keyCode == 68) keyboard.RIGHT = false;
     if (event.keyCode == 65) keyboard.LEFT = false;

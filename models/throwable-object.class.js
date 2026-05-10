@@ -16,6 +16,13 @@ class ThrowableObject extends MovableObject {
         'img/6_salsa_bottle/bottle_rotation/bottle_splash/6_bottle_splash.png'
     ];
 
+
+    /**
+     * Creates a throwable bottle at the given position.
+     * @param {number} x
+     * @param {number} y
+     * @param {boolean} otherDirection
+     */
     constructor(x, y, otherDirection = false) {
         super().loadImage('img/6_salsa_bottle/salsa_bottle.png');
         this.loadImages(this.IMAGES_ROTATION);
@@ -28,50 +35,114 @@ class ThrowableObject extends MovableObject {
         this.throw();
     }
 
+
+    /**
+     * Starts the throw: applies gravity, moves horizontally and plays rotation animation.
+     */
     throw() {
         this.speedY = 18;
         this.applyGravity();
+        this.startMoveInterval();
+        this.startRotationAnimation();
+    }
+
+
+    /**
+     * Starts the horizontal movement interval for the bottle.
+     */
+    startMoveInterval() {
         this.throwInterval = setInterval(() => {
             this.x += this.otherDirection ? -10 : 10;
         }, 20);
+    }
+
+
+    /**
+     * Starts the rotation animation interval for the bottle.
+     */
+    startRotationAnimation() {
         this.animationInterval = setInterval(() => {
             this.playAnimation(this.IMAGES_ROTATION);
         }, 50);
     }
 
-splash(world, enemy) {
-    this.splashing = true;
-    clearInterval(this.throwInterval);
-    clearInterval(this.animationInterval);
-    this.currentImage = 0;
 
-    if (enemy && !enemy.isDying) {
+    /**
+     * Stops all movement and animation intervals of the bottle.
+     */
+    stopBottleIntervals() {
+        clearInterval(this.throwInterval);
+        clearInterval(this.animationInterval);
+    }
+
+
+    /**
+     * Triggers the splash effect and handles enemy damage on impact.
+     * @param {World} world
+     * @param {MovableObject} enemy
+     */
+    splash(world, enemy) {
+        this.splashing = true;
+        this.stopBottleIntervals();
+        this.currentImage = 0;
+        this.applyBottleHit(world, enemy);
+        this.playSplashAnimation(world);
+    }
+
+
+    /**
+     * Applies damage to the enemy hit by the bottle.
+     * @param {World} world
+     * @param {MovableObject} enemy
+     */
+    applyBottleHit(world, enemy) {
+        if (!enemy || enemy.isDying) return;
         if (enemy instanceof Endboss) {
             enemy.hit();
         } else {
             enemy.die();
-            setTimeout(() => {
-                const enemyIndex = world.level.enemies.indexOf(enemy);
-                if (enemyIndex !== -1) {
-                    world.level.enemies.splice(enemyIndex, 1);
-                }
-            }, 500);
+            this.scheduleEnemyRemoval(world, enemy);
         }
     }
 
-    let splashFrame = 0;
-    let splashInterval = setInterval(() => {
-        if (splashFrame < this.IMAGES_SPLASH.length) {
-            let path = this.IMAGES_SPLASH[splashFrame];
-            this.img = this.imageCache[path];
-            splashFrame++;
-        } else {
-            clearInterval(splashInterval);
-            const bottleIndex = world.throwableObjects.indexOf(this);
-            if (bottleIndex !== -1) {
-                world.throwableObjects.splice(bottleIndex, 1);
+
+    /**
+     * Schedules removal of a defeated enemy from the level.
+     * @param {World} world
+     * @param {MovableObject} enemy
+     */
+    scheduleEnemyRemoval(world, enemy) {
+        setTimeout(() => {
+            const i = world.level.enemies.indexOf(enemy);
+            if (i !== -1) world.level.enemies.splice(i, 1);
+        }, 500);
+    }
+
+
+    /**
+     * Plays the splash animation frame by frame, then removes the bottle.
+     * @param {World} world
+     */
+    playSplashAnimation(world) {
+        let splashFrame = 0;
+        let splashInterval = setInterval(() => {
+            if (splashFrame < this.IMAGES_SPLASH.length) {
+                this.img = this.imageCache[this.IMAGES_SPLASH[splashFrame]];
+                splashFrame++;
+            } else {
+                clearInterval(splashInterval);
+                this.removeFromWorld(world);
             }
-        }
-    }, 50);
-}
+        }, 50);
+    }
+
+
+    /**
+     * Removes this bottle from the world's throwable objects array.
+     * @param {World} world
+     */
+    removeFromWorld(world) {
+        const i = world.throwableObjects.indexOf(this);
+        if (i !== -1) world.throwableObjects.splice(i, 1);
+    }
 }

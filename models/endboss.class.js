@@ -37,6 +37,10 @@ class Endboss extends MovableObject {
         'img/4_enemie_boss_chicken/2_alert/G12.png'
     ];
 
+
+    /**
+     * Creates the Endboss and starts its animation loop.
+     */
     constructor() {
         super().loadImage(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
@@ -47,73 +51,100 @@ class Endboss extends MovableObject {
         this.animate();
     }
 
+
+    /**
+     * Triggers the alert animation once, then starts walking.
+     */
     alert() {
         if (this.hasPlayedAlert) return;
         this.hasPlayedAlert = true;
         this.isAlerted = true;
-
-        let alertDuration = this.IMAGES_ALERT.length * 200;
         setTimeout(() => {
             this.isAlerted = false;
             this.startWalking();
-        }, alertDuration);
+        }, this.IMAGES_ALERT.length * 200);
     }
 
+
+    /**
+     * Starts the endboss movement interval, moving left each frame.
+     */
     startWalking() {
         this.moveInterval = setInterval(() => {
-            if (!this.isDead()) {
-                this.x -= 3;
-            }
+            if (!this.isDead()) this.x -= 3;
         }, 1000 / 60);
     }
 
+
+    /**
+     * Starts the animation loop, choosing frames based on current state.
+     */
     animate() {
-    setInterval(() => {
-        if (this.isDying) return;
-        if (this.isHurt()) {
-            this.playAnimation(this.IMAGES_HIT);
-        } else if (this.isAlerted) {
-            this.playAnimation(this.IMAGES_ALERT);
-        } else {
-            this.playAnimation(this.IMAGES_WALKING);
-        }
-    }, 200);
-}
-
-    hit() {
-    this.energy -= 20;
-    if (this.energy <= 0) {
-        this.energy = 0;
-        this.die();
+        setInterval(() => {
+            if (this.isDying) return;
+            this.playCurrentStateAnimation();
+        }, 200);
     }
-    this.lastHit = new Date().getTime();
-}
 
-  die() {
-    if (this.isDying) return;
-    this.isDying = true;
-    clearInterval(this.moveInterval);
-    
-    let frame = 0;
-    let deathAnimation = setInterval(() => {
-        if (frame < this.IMAGES_DEAD.length) {
-            let path = this.IMAGES_DEAD[frame];
-            this.img = this.imageCache[path];
-            frame++;
-        } else {
-            clearInterval(deathAnimation);
-        }
-    }, 200);
 
-    // Nach Animation nach unten fallen, dann Callback
-    setTimeout(() => {
+    /**
+     * Plays the correct animation for the current boss state.
+     */
+    playCurrentStateAnimation() {
+        if (this.isHurt()) this.playAnimation(this.IMAGES_HIT);
+        else if (this.isAlerted) this.playAnimation(this.IMAGES_ALERT);
+        else this.playAnimation(this.IMAGES_WALKING);
+    }
+
+
+    /**
+     * Reduces boss energy by 20 and triggers death if energy reaches zero.
+     */
+    hit() {
+        this.energy = Math.max(0, this.energy - 20);
+        this.lastHit = new Date().getTime();
+        if (this.energy === 0) this.die();
+    }
+
+
+    /**
+     * Triggers the death sequence: plays death animation then makes boss fall offscreen.
+     */
+    die() {
+        if (this.isDying) return;
+        this.isDying = true;
+        clearInterval(this.moveInterval);
+        this.playDeathAnimation();
+        setTimeout(() => this.startDeathFall(), this.IMAGES_DEAD.length * 200);
+    }
+
+
+    /**
+     * Plays the death animation frame by frame.
+     */
+    playDeathAnimation() {
+        let frame = 0;
+        let deathInterval = setInterval(() => {
+            if (frame < this.IMAGES_DEAD.length) {
+                this.img = this.imageCache[this.IMAGES_DEAD[frame]];
+                frame++;
+            } else {
+                clearInterval(deathInterval);
+            }
+        }, 200);
+    }
+
+
+    /**
+     * Makes the boss fall downward off screen, then triggers the onDeath callback.
+     */
+    startDeathFall() {
         let fallInterval = setInterval(() => {
             this.y += 10;
-            if (this.y > 600) { // ← aus dem Bild gefallen
+            if (this.y > 600) {
                 clearInterval(fallInterval);
-                if (this.onDeath) this.onDeath(); // ← Callback aufrufen
+                if (this.onDeath) this.onDeath();
             }
         }, 1000 / 60);
-    }, this.IMAGES_DEAD.length * 200);
-}
+    }
 }

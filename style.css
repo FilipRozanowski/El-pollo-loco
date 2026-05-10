@@ -1,6 +1,6 @@
 @font-face {
-  font-family: Zabra;
-  src: url('fonts/zabars/Zabars.ttf');
+    font-family: Zabra;
+    src: url('fonts/zabars/Zabars.ttf');
 }
 
 
@@ -12,31 +12,111 @@ body {
     background-image: url("img/Westernbackground.png");
     font-family: Zabra;
     margin: 0;
-    }
+}
 
-    h1{
-        font-size: 60px;
-         letter-spacing: 2px;
-    }
+h1 {
+    font-size: 60px;
+    letter-spacing: 2px;
+}
 
 canvas {
     background-color: black;
     display: block;
 }
 
-@media only screen and (max-width: 720px){
-    canvas {
-        width: 100%;
+
+/* ── Mobile Controls ── */
+
+#mobile-controls {
+    display: none;
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    width: 100%;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 100;
+}
+
+#controls-left,
+#controls-right {
+    display: flex;
+    gap: 12px;
+    pointer-events: all;
+}
+
+#mobile-controls button {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(245, 197, 24, 0.75);
+    color: black;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+#mobile-controls button:active {
+    background: rgba(255, 215, 0, 0.95);
+    transform: scale(0.93);
+}
+
+
+/* ── Orientation Warning ── */
+
+#orientation-warning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #f5c518;
+    font-family: Zabra;
+    font-size: 24px;
+    text-align: center;
+    padding: 20px;
+}
+
+
+/* ── Responsive: Touchgeräte (Smartphone / Tablet) ── */
+
+@media (hover: none) and (pointer: coarse) {
+    body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        justify-content: flex-start;
+        padding: 0;
     }
 
-    h1{
+    h1 {
         display: none;
+    }
+
+    canvas {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+    }
+
+    #mobile-controls {
+        display: flex;
     }
 }
 
-@media only screen and (max-height: 480px){
-    canvas {
-        height: 100vh;
+/* Hochkant-Warnung: Touchgerät im Portrait-Modus */
+@media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+    #orientation-warning {
+        display: flex;
     }
 }
 
