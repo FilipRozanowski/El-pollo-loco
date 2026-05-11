@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El pollo loco</title>
     <link rel="stylesheet" href="style.css">
-     <link rel="icon" type="image/x-icon" href="img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png">
+    <link rel="icon" type="image/x-icon" href="img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png">
 
     <script src="models/drawable-object.class.js"></script>
     <script src="models/movable-object.class.js"></script>
@@ -28,7 +28,6 @@
     <script src="levels/level1.js"></script>
     <script src="game.js"></script>
     <script src="menu.js"></script>
-    
 </head>
 
 <body onload="init();">
@@ -36,11 +35,84 @@
     <h1>El pollo loco</h1>
 
     <div id="orientation-warning">
-        <p>📱 Bitte drehe dein Gerät ins Querformat!</p>
+        <p>&#128242; Bitte drehe dein Gerät ins Querformat!</p>
     </div>
 
-    <canvas id="canvas" width="720" height="480"></canvas>
+    <div id="game-wrapper">
+        <canvas id="canvas" width="720" height="480"></canvas>
+
+    
+        <div id="menu-overlay">
+            <div id="menu-buttons">
+                <button id="btn-start"     class="menu-btn" onclick="onStartGame()">Start Game</button>
+                <button id="btn-howtoplay" class="menu-btn" onclick="onHowToPlay()">How to Play</button>
+            </div>
+            <button id="btn-hamburger" onclick="onToggleImpressum()">&#9776;</button>
+        </div>
+
+    
+        <div id="impressum-overlay" class="hidden">
+            <div id="impressum-box">
+                <h2>Impressum</h2>
+                <div id="impressum-content">
+                    <p>Angaben gemäß 5 DDG</p>
+                    <p>Filip Rozanowski<br>Rauschenberg 15<br>59469 Ense</p>
+                    <p>Vertreten durch: Filip Rozanowski</p>
+                    <p>
+                        <span class="highlight">Kontakt:</span><br>
+                        Telefon: 0163-6703249<br>
+                        <span class="highlight">E-Mail: filip.rozanowski@gmail.com</span>
+                    </p>
+                    <p>
+                        <span class="highlight">Haftungsausschluss:</span><br>
+                        Icons and Images: Pixabay, Flaticon<br>
+                        Sounds: freesound
+                    </p>
+                    <p>
+                        <span class="highlight">Haftung fuer Inhalte:</span><br>
+                        Die Inhalte wurden mit groesster Sorgfalt erstellt.
+                        Fuer Richtigkeit und Vollstaendigkeit kann keine Gewaehr uebernommen werden.
+                    </p>
+                    <p>
+                        <span class="highlight">Urheberrecht:</span><br>
+                        Alle Inhalte unterliegen dem deutschen Urheberrecht.
+                        Vervielfaeltigung nur mit schriftl. Zustimmung des jeweiligen Autors.
+                    </p>
+                    <p>
+                        <span class="highlight">Datenschutz:</span><br>
+                        Datenuebertragung im Internet kann Sicherheitsluecken aufweisen.
+                        Ein lueckenloser Schutz vor Datenzugriff Dritter ist nicht moeglich.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="howtoplay-overlay" class="hidden">
+            <div id="howtoplay-box">
+                <h2>How to Play</h2>
+                <ul>
+                    <li>&#11013; A &nbsp;/&nbsp; D &#10145; &nbsp;&ndash;&nbsp; Bewegen</li>
+                    <li>SPACE &nbsp;&ndash;&nbsp; Springen</li>
+                    <li>F &nbsp;&ndash;&nbsp; Flasche werfen</li>
+                    <li>Auf Huehner springen um sie zu toeten!</li>
+                </ul>
+                <button class="menu-btn" onclick="onBackToMenu()">&#8592; Zurueck</button>
+            </div>
+        </div>
+
+        <div id="mobile-controls">
+            <div id="controls-left">
+                <button id="btn-left"  class="mobile-btn">&#9664;</button>
+                <button id="btn-right" class="mobile-btn">&#9654;</button>
+            </div>
+            <div id="controls-right">
+                <button id="btn-throw" class="mobile-btn">Throw</button>
+                <button id="btn-jump"  class="mobile-btn">Jump</button>
+            </div>
+        </div>
+
+    </div>
 
 </body>
-
 </html>

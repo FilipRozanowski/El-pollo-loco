@@ -22,7 +22,7 @@ class World {
      * @param {Keyboard} keyboard
      */
     constructor(canvas, keyboard) {
-        this.ctx = canvas.getContext('2d');
+        this.ctx = canvas.getContext('2d', { willReadFrequently: true });
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.endbossBar.x = canvas.width - 210;

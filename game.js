@@ -32,13 +32,13 @@ function init() {
  * Starts the game by initializing the level, world and music.
  */
 function startGame() {
-    showMobileControls();
-    let ctx = canvas.getContext('2d');
+    let ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.style.cursor = 'default';
     level1 = createLevel1();
     world = new World(canvas, keyboard);
     soundManager.startMusic();
+    showMobileControls();
 }
 
 
@@ -88,46 +88,15 @@ function isTouchDevice() {
 
 
 /**
- * Creates a single touch button and appends it to the given container.
- * @param {string} label
- * @param {string} key
- * @param {string} id
- * @param {HTMLElement} container
+ * Registers touch events on the static HTML buttons.
+ * @param {string} id - Button element ID
+ * @param {string} key - Keyboard key to simulate
  */
-function createTouchButton(label, key, id, container) {
-    const btn = document.createElement('button');
-    btn.id = id;
-    btn.textContent = label;
-    btn.className = 'mobile-btn';
-    btn.addEventListener('touchstart', (e) => { e.preventDefault(); keyboard[key] = true; }, { passive: false });
+function registerTouchButton(id, key) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); keyboard[key] = true;  }, { passive: false });
     btn.addEventListener('touchend',   (e) => { e.preventDefault(); keyboard[key] = false; }, { passive: false });
-    container.appendChild(btn);
-}
-
-
-/**
- * Creates the left-side control group (move left / move right).
- * @returns {HTMLElement}
- */
-function createLeftControls() {
-    const group = document.createElement('div');
-    group.id = 'controls-left';
-    createTouchButton('◀', 'LEFT',  'btn-left',  group);
-    createTouchButton('▶', 'RIGHT', 'btn-right', group);
-    return group;
-}
-
-
-/**
- * Creates the right-side control group (throw / jump).
- * @returns {HTMLElement}
- */
-function createRightControls() {
-    const group = document.createElement('div');
-    group.id = 'controls-right';
-    createTouchButton('Throw', 'F',     'btn-throw', group);
-    createTouchButton('Jump',  'SPACE', 'btn-jump',  group);
-    return group;
 }
 
 
@@ -142,7 +111,6 @@ function positionControls(controls) {
     controls.style.left           = rect.left   + 'px';
     controls.style.width          = rect.width  + 'px';
     controls.style.height         = rect.height + 'px';
-    controls.style.display        = controls.style.display === 'none' ? 'none' : 'flex';
     controls.style.justifyContent = 'space-between';
     controls.style.alignItems     = 'flex-end';
     controls.style.padding        = '16px';
@@ -153,16 +121,14 @@ function positionControls(controls) {
 
 
 /**
- * Initializes and injects the mobile touch controls overlay over the canvas.
- * Controls are always created but visibility is managed dynamically.
+ * Registers touch listeners on all static mobile buttons and sets up
+ * resize/orientation listeners to manage visibility dynamically.
  */
 function initMobileControls() {
-    const controls = document.createElement('div');
-    controls.id = 'mobile-controls';
-    controls.style.display = 'none';
-    controls.appendChild(createLeftControls());
-    controls.appendChild(createRightControls());
-    document.body.appendChild(controls);
+    registerTouchButton('btn-left',  'LEFT');
+    registerTouchButton('btn-right', 'RIGHT');
+    registerTouchButton('btn-throw', 'F');
+    registerTouchButton('btn-jump',  'SPACE');
 
     window.addEventListener('resize', () => {
         setTimeout(() => updateMobileControlsVisibility(), 100);
@@ -178,7 +144,6 @@ function initMobileControls() {
 
 /**
  * Shows or hides the mobile controls depending on touch device state and game state.
- * Called on resize, orientation change, game start and game end.
  */
 function updateMobileControlsVisibility() {
     const controls = document.getElementById('mobile-controls');

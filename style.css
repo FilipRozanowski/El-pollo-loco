@@ -4,12 +4,15 @@
 }
 
 
+/* ── Base ── */
+
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     background-image: url("img/Westernbackground.png");
+    background-size: cover;
     font-family: Zabra;
     margin: 0;
 }
@@ -25,7 +28,218 @@ canvas {
 }
 
 
-/* ── Mobile Controls (via JS injiziert) ── */
+/* ── Utility ── */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* ── Game Wrapper ── */
+
+#game-wrapper {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+}
+
+
+/* ── Orientation Warning ── */
+
+#orientation-warning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: #f5c518;
+    font-family: Zabra;
+    font-size: 24px;
+    text-align: center;
+    padding: 20px;
+}
+
+
+/* ── Hauptmenü-Overlay ── */
+
+#menu-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#menu-buttons {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    pointer-events: all;
+    white-space: nowrap;
+}
+
+#btn-hamburger {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+#btn-hamburger:hover {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+
+/* ── Menü-Buttons (Start Game / How to Play / Zurück) ── */
+
+.menu-btn {
+    padding: 10px 20px;
+    min-width: 150px;
+    height: 45px;
+    background: #f5c518;
+    color: black;
+    border: none;
+    border-radius: 8px;
+    font-family: Zabra;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+.menu-btn:hover {
+    background: #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+
+/* ── Impressum-Overlay ── */
+
+#impressum-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 70px;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 5;
+}
+
+#impressum-box {
+    background: rgba(0, 0, 0, 0.88);
+    border-radius: 12px;
+    padding: 20px 28px 24px 28px;
+    width: calc(100% - 40px);
+    max-height: calc(100% - 90px);
+    overflow-y: auto;
+    pointer-events: all;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: #f5c518 rgba(255, 255, 255, 0.1);
+}
+
+#impressum-box h2 {
+    color: #f5c518;
+    font-family: Zabra;
+    font-size: 24px;
+    letter-spacing: 2px;
+    text-align: center;
+    margin: 0 0 18px 0;
+}
+
+#impressum-box p {
+    color: white;
+    font-family: Zabra;
+    font-size: 17px;
+    letter-spacing: 1px;
+    line-height: 1.8;
+    margin: 0 0 14px 0;
+    text-align: center;
+}
+
+#impressum-box .highlight {
+    color: #f5c518;
+}
+
+
+/* ── How to Play-Overlay ── */
+
+#howtoplay-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#howtoplay-box {
+    background: rgba(0, 0, 0, 0.80);
+    border-radius: 12px;
+    padding: 32px 48px;
+    text-align: center;
+    width: 58%;
+    box-sizing: border-box;
+}
+
+#howtoplay-box h2 {
+    color: #f5c518;
+    font-family: Zabra;
+    font-size: 26px;
+    letter-spacing: 2px;
+    margin: 0 0 40px 0;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+#howtoplay-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+}
+
+#howtoplay-box ul li {
+    color: white;
+    font-family: Zabra;
+    font-size: 20px;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+#howtoplay-box ul li:last-child {
+    margin-bottom: 0;
+}
+
+
+/* ── Mobile Controls ── */
 
 #mobile-controls {
     position: absolute;
@@ -69,26 +283,7 @@ canvas {
 }
 
 
-/* ── Orientation Warning ── */
-
-#orientation-warning {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.92);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    color: #f5c518;
-    font-family: Zabra;
-    font-size: 24px;
-    text-align: center;
-    padding: 20px;
-}
-
-
-/* ── Responsive: Touchgeräte (Smartphone / Tablet) ── */
+/* ── Responsive: Touchgeräte ── */
 
 @media (hover: none) and (pointer: coarse) {
     body {
@@ -114,10 +309,9 @@ canvas {
     }
 }
 
-/* Hochkant-Warnung: Touchgerät im Portrait-Modus */
+/* Hochkant-Warnung */
 @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
     #orientation-warning {
         display: flex;
     }
 }
-
