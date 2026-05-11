@@ -7,6 +7,10 @@ class Endboss extends MovableObject {
     isAlerted = false;
     hasPlayedAlert = false;
 
+    PATROL_RIGHT_LIMIT = 2300;
+    PATROL_LEFT_LIMIT  = 100;
+    patrolDirection    = -1;
+
     IMAGES_WALKING = [
         'img/4_enemie_boss_chicken/1_walk/G1.png',
         'img/4_enemie_boss_chicken/1_walk/G2.png',
@@ -47,13 +51,13 @@ class Endboss extends MovableObject {
         this.loadImages(this.IMAGES_HIT);
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_ALERT);
-        this.x = 2300;
+        this.x = this.PATROL_RIGHT_LIMIT;
         this.animate();
     }
 
 
     /**
-     * Triggers the alert animation once, then starts walking.
+     * Triggers the alert animation once, then starts patrolling.
      */
     alert() {
         if (this.hasPlayedAlert) return;
@@ -61,17 +65,26 @@ class Endboss extends MovableObject {
         this.isAlerted = true;
         setTimeout(() => {
             this.isAlerted = false;
-            this.startWalking();
+            this.startPatrol();
         }, this.IMAGES_ALERT.length * 200);
     }
 
 
     /**
-     * Starts the endboss movement interval, moving left each frame.
+     * Starts the patrol interval – boss walks left to character spawn,
+     * then turns around and walks back to its start position, repeating until dead.
      */
-    startWalking() {
+    startPatrol() {
         this.moveInterval = setInterval(() => {
-            if (!this.isDead()) this.x -= 3;
+            if (this.isDead()) return;
+            this.x += this.patrolDirection * 3;
+            this.otherDirection = this.patrolDirection > 0;
+
+            if (this.x <= this.PATROL_LEFT_LIMIT) {
+                this.patrolDirection = 1;
+            } else if (this.x >= this.PATROL_RIGHT_LIMIT) {
+                this.patrolDirection = -1;
+            }
         }, 1000 / 60);
     }
 

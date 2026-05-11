@@ -6,7 +6,7 @@ class World {
     keyboard;
     camera_x = 0;
     bossVisible = false;
-    endbossBar = new StatusBar('endboss', 500, -10);
+    endbossBar = new StatusBar('endboss', 510, 10);
     healthBar = new StatusBar('health', 0, -10);
     coinBar = new StatusBar('coin', 0, 30);
     bottleBar = new StatusBar('bottle', 0, 80);
@@ -25,6 +25,10 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
+        this.endbossBar.x = canvas.width - 210;
+        this.endbossBar.y = -10;
+        this.endbossBar.width = 210;
+        this.endbossBar.height = 60;
         this.draw();
         this.setWorld();
         this.run();
@@ -50,7 +54,7 @@ class World {
     handleMuteClick(e) {
         let { x, y } = this.getCanvasCoords(e);
         const bx = this.canvas.width - 50;
-        const by = 45;
+        const by = 75;
         if (Math.hypot(x - bx, y - by) <= 18) soundManager.toggleMute();
     }
 
@@ -337,11 +341,11 @@ class World {
 
 
     /**
-     * Draws the mute/unmute button in the bottom-right corner.
+     * Draws the mute/unmute button below the endboss health bar.
      */
     drawMuteButton() {
         const x = this.canvas.width - 50;
-        const y = 45;
+        const y = 75;
         this.ctx.save();
         this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
         this.ctx.beginPath();

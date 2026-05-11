@@ -90,11 +90,13 @@ function createBackgrounds() {
     const l1a   = 'img/5_background/layers/1_first_layer/1.png';
     const l1b   = 'img/5_background/layers/1_first_layer/2.png';
     return [
+        ...createBackgroundSegment(air, l3b, l2b, l1b, -1440),
         ...createBackgroundSegment(air, l3b, l2b, l1b, -720),
         ...createBackgroundSegment(air, l3a, l2a, l1a, 0),
         ...createBackgroundSegment(air, l3b, l2b, l1b, 720),
         ...createBackgroundSegment(air, l3a, l2a, l1a, 720 * 2),
         ...createBackgroundSegment(air, l3b, l2b, l1b, 720 * 3),
+        ...createBackgroundSegment(air, l3b, l2b, l1b, 720 * 4),
     ];
 }
 

@@ -14,12 +14,26 @@ class SoundManager {
 
 
     /**
-     * Initializes all sound volumes and sets the background music to loop.
+     * Initializes all sound volumes, sets background music to loop,
+     * and restores the mute state from localStorage.
      */
     constructor() {
         this.sounds.background.loop = true;
         this.sounds.background.volume = 0.05;
         this.setSoundVolumes(0.3, ['jump', 'hit', 'chicken', 'lose', 'win', 'boss']);
+        this.restoreMuteState();
+    }
+
+
+    /**
+     * Reads the saved mute state from localStorage and applies it.
+     */
+    restoreMuteState() {
+        const saved = localStorage.getItem('muted');
+        if (saved === 'true') {
+            this.muted = true;
+            Object.values(this.sounds).forEach(s => s.muted = true);
+        }
     }
 
 
@@ -61,11 +75,13 @@ class SoundManager {
 
 
     /**
-     * Toggles mute state for all sounds and resumes music if unmuted.
+     * Toggles mute state for all sounds, persists it to localStorage,
+     * and resumes music if unmuted.
      * @returns {boolean} current muted state
      */
     toggleMute() {
         this.muted = !this.muted;
+        localStorage.setItem('muted', this.muted);
         Object.values(this.sounds).forEach(s => s.muted = this.muted);
         if (!this.muted && this.musicShouldPlay) this.sounds.background.play().catch(() => {});
         return this.muted;
