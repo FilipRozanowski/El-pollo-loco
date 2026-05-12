@@ -76,26 +76,26 @@ canvas {
 
 #menu-buttons {
     position: absolute;
-    top: 40px;
+    top: 5%;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 20px;
+    gap: 16px;
     pointer-events: all;
     white-space: nowrap;
 }
 
 #btn-hamburger {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 40px;
-    height: 40px;
+    top: 2%;
+    right: 2%;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     border: none;
     background: rgba(0, 0, 0, 0.5);
     color: white;
-    font-size: 18px;
+    font-size: 22px;
     cursor: pointer;
     pointer-events: all;
     display: flex;
@@ -113,15 +113,15 @@ canvas {
 /* ── Menü-Buttons (Start Game / How to Play / Zurück) ── */
 
 .menu-btn {
-    padding: 10px 20px;
-    min-width: 150px;
-    height: 45px;
+    padding: 12px 24px;
+    min-width: 175px;
+    height: 54px;
     background: #f5c518;
     color: black;
     border: none;
     border-radius: 8px;
     font-family: Zabra;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: bold;
     letter-spacing: 2px;
     cursor: pointer;
@@ -167,7 +167,7 @@ canvas {
 #impressum-box h2 {
     color: #f5c518;
     font-family: Zabra;
-    font-size: 24px;
+    font-size: 26px;
     letter-spacing: 2px;
     text-align: center;
     margin: 0 0 18px 0;
@@ -176,10 +176,10 @@ canvas {
 #impressum-box p {
     color: white;
     font-family: Zabra;
-    font-size: 17px;
+    font-size: 18px;
     letter-spacing: 1px;
     line-height: 1.8;
-    margin: 0 0 14px 0;
+    margin: 0 0 13px 0;
     text-align: center;
 }
 
@@ -204,31 +204,31 @@ canvas {
 #howtoplay-box {
     background: rgba(0, 0, 0, 0.80);
     border-radius: 12px;
-    padding: 32px 48px;
+    padding: 32px 52px;
     text-align: center;
-    width: 58%;
+    width: 62%;
     box-sizing: border-box;
 }
 
 #howtoplay-box h2 {
     color: #f5c518;
     font-family: Zabra;
-    font-size: 26px;
+    font-size: 30px;
     letter-spacing: 2px;
-    margin: 0 0 40px 0;
+    margin: 0 0 44px 0;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
 }
 
 #howtoplay-box ul {
     list-style: none;
     padding: 0;
-    margin: 0 0 24px 0;
+    margin: 0 0 28px 0;
 }
 
 #howtoplay-box ul li {
     color: white;
     font-family: Zabra;
-    font-size: 20px;
+    font-size: 22px;
     letter-spacing: 2px;
     margin-bottom: 28px;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
@@ -314,4 +314,91 @@ canvas {
     #orientation-warning {
         display: flex;
     }
+}
+
+
+/* ── Responsive Breakpoints (Canvas-Größe wächst mit dem Viewport) ── */
+
+/* Ab 1400px */
+@media (min-width: 1400px) {
+    .menu-btn         { min-width: 220px; height: 64px; font-size: 26px; }
+    #btn-hamburger    { width: 56px; height: 56px; font-size: 24px; }
+    #impressum-box h2 { font-size: 30px; margin: 0 0 20px 0; }
+    #impressum-box p  { font-size: 21px; margin: 0 0 14px 0; }
+    #howtoplay-box    { width: 58%; padding: 40px 58px; }
+    #howtoplay-box h2 { font-size: 36px; margin: 0 0 50px 0; }
+    #howtoplay-box ul li { font-size: 26px; margin-bottom: 30px; }
+    #impressum-overlay { padding-top: 95px; }
+    #menu-buttons     { gap: 22px; }
+    .mobile-btn       { width: 92px; height: 92px; font-size: 17px; }
+}
+
+/* Ab 1800px */
+@media (min-width: 1800px) {
+    .menu-btn         { min-width: 270px; height: 78px; font-size: 32px; }
+    #btn-hamburger    { width: 68px; height: 68px; font-size: 30px; }
+    #impressum-box h2 { font-size: 38px; margin: 0 0 24px 0; }
+    #impressum-box p  { font-size: 26px; margin: 0 0 18px 0; }
+    #howtoplay-box    { width: 56%; padding: 50px 70px; }
+    #howtoplay-box h2 { font-size: 46px; margin: 0 0 58px 0; }
+    #howtoplay-box ul li { font-size: 34px; margin-bottom: 36px; }
+    #impressum-overlay { padding-top: 118px; }
+    #menu-buttons     { gap: 28px; }
+    .mobile-btn       { width: 116px; height: 116px; font-size: 22px; }
+}
+
+/* Ab 2400px */
+@media (min-width: 2400px) {
+    .menu-btn         { min-width: 300px; height: 84px; font-size: 34px; border-radius: 12px; }
+    #btn-hamburger    { width: 74px; height: 74px; font-size: 32px; }
+    #impressum-box h2 { font-size: 42px; margin: 0 0 26px 0; }
+    #impressum-box p  { font-size: 28px; margin: 0 0 18px 0; }
+    #howtoplay-box    { width: 52%; padding: 56px 76px; }
+    #howtoplay-box h2 { font-size: 48px; margin: 0 0 64px 0; }
+    #howtoplay-box ul li { font-size: 36px; margin-bottom: 38px; }
+    #impressum-overlay { padding-top: 138px; }
+    #menu-buttons     { gap: 30px; }
+    .mobile-btn       { width: 130px; height: 130px; font-size: 22px; }
+}
+
+/* Ab 3000px */
+@media (min-width: 3000px) {
+    .menu-btn         { min-width: 380px; height: 106px; font-size: 44px; border-radius: 14px; }
+    #btn-hamburger    { width: 94px; height: 94px; font-size: 42px; }
+    #impressum-box h2 { font-size: 54px; margin: 0 0 32px 0; }
+    #impressum-box p  { font-size: 36px; margin: 0 0 22px 0; }
+    #howtoplay-box    { width: 50%; padding: 70px 94px; }
+    #howtoplay-box h2 { font-size: 62px; margin: 0 0 78px 0; }
+    #howtoplay-box ul li { font-size: 46px; margin-bottom: 48px; }
+    #impressum-overlay { padding-top: 170px; }
+    #menu-buttons     { gap: 40px; }
+    .mobile-btn       { width: 160px; height: 160px; font-size: 28px; }
+}
+
+/* Ab 3500px */
+@media (min-width: 3500px) {
+    .menu-btn         { min-width: 460px; height: 126px; font-size: 54px; border-radius: 16px; }
+    #btn-hamburger    { width: 114px; height: 114px; font-size: 52px; }
+    #impressum-box h2 { font-size: 66px; margin: 0 0 38px 0; }
+    #impressum-box p  { font-size: 44px; margin: 0 0 28px 0; }
+    #howtoplay-box    { width: 48%; padding: 84px 112px; }
+    #howtoplay-box h2 { font-size: 76px; margin: 0 0 92px 0; }
+    #howtoplay-box ul li { font-size: 56px; margin-bottom: 58px; }
+    #impressum-overlay { padding-top: 205px; }
+    #menu-buttons     { gap: 50px; }
+    .mobile-btn       { width: 190px; height: 190px; font-size: 34px; }
+}
+
+/* Ab 4000px */
+@media (min-width: 4000px) {
+    .menu-btn         { min-width: 540px; height: 148px; font-size: 64px; border-radius: 18px; }
+    #btn-hamburger    { width: 134px; height: 134px; font-size: 62px; }
+    #impressum-box h2 { font-size: 78px; margin: 0 0 44px 0; }
+    #impressum-box p  { font-size: 52px; margin: 0 0 34px 0; }
+    #howtoplay-box    { width: 46%; padding: 100px 130px; }
+    #howtoplay-box h2 { font-size: 90px; margin: 0 0 108px 0; }
+    #howtoplay-box ul li { font-size: 66px; margin-bottom: 68px; }
+    #impressum-overlay { padding-top: 240px; }
+    #menu-buttons     { gap: 60px; }
+    .mobile-btn       { width: 220px; height: 220px; font-size: 40px; }
 }

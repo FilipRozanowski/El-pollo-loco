@@ -7,9 +7,9 @@ class World {
     camera_x = 0;
     bossVisible = false;
     endbossBar = new StatusBar('endboss', 510, 10);
-    healthBar = new StatusBar('health', 0, -10);
-    coinBar = new StatusBar('coin', 0, 30);
-    bottleBar = new StatusBar('bottle', 0, 80);
+    healthBar = new StatusBar('health', 0, 0);
+    coinBar = new StatusBar('coin', 0, 55);
+    bottleBar = new StatusBar('bottle', 0, 110);
     throwableObjects = [];
     endscreen = new Endscreen();
     gameOver = false;
@@ -26,7 +26,7 @@ class World {
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.endbossBar.x = canvas.width - 210;
-        this.endbossBar.y = -10;
+        this.endbossBar.y = 0;
         this.endbossBar.width = 210;
         this.endbossBar.height = 60;
         this.draw();
@@ -181,7 +181,7 @@ class World {
             return true;
         }
 
-        if (!this.character.isHurt() && !killedByJump) this.applyEnemyDamage();
+        if (!this.character.isHurt() && !killedByJump) this.applyEnemyDamage(enemy);
         return killedByJump;
     }
 
@@ -207,8 +207,8 @@ class World {
     /**
      * Applies damage to the character and checks for death.
      */
-    applyEnemyDamage() {
-        this.character.hit();
+    applyEnemyDamage(enemy) {
+        this.character.hit(enemy);
         this.healthBar.setPercentage(this.character.energy);
         if (this.character.isDead() && !this.gameOver) this.triggerLose();
     }

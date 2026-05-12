@@ -255,21 +255,28 @@ class Character extends MovableObject {
 
     /**
      * Reduces energy, plays hit sound and triggers knockback.
+     * @param {MovableObject} [enemy] - the enemy that caused the hit
      */
-    hit() {
+    hit(enemy) {
         this.energy = Math.max(0, this.energy - 20);
         this.lastHit = new Date().getTime();
         this.lastActionTime = Date.now();
         soundManager.play('hit');
-        this.knockback();
+        this.knockback(enemy);
     }
 
 
     /**
-     * Pushes the character back and slightly upward when hit by an enemy.
+     * Pushes the character away from the enemy that hit them.
+     * @param {MovableObject} [enemy]
      */
-    knockback() {
-        let direction = this.otherDirection ? 1 : -1;
+    knockback(enemy) {
+        let direction;
+        if (enemy) {
+            direction = this.x < enemy.x ? -1 : 1;
+        } else {
+            direction = this.otherDirection ? 1 : -1;
+        }
         let steps = 0;
         let knockbackInterval = setInterval(() => {
             this.x += direction * 30;
