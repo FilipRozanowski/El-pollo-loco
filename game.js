@@ -19,10 +19,22 @@ menuImage.src = 'img/9_intro_outro_screens/start/startscreen_1.png';
 // ──────────────────────────────────────────
 
 /**
+ * Updates the --cw CSS variable to match the current rendered canvas width.
+ * All UI elements use calc(var(--cw) * factor) to scale proportionally.
+ */
+function updateCanvasVar() {
+    const rect = canvas.getBoundingClientRect();
+    document.getElementById('game-wrapper').style.setProperty('--cw', rect.width + 'px');
+}
+
+
+/**
  * Initializes the game by getting the canvas and drawing the main menu.
  */
 function init() {
     canvas = document.getElementById('canvas');
+    updateCanvasVar();
+    window.addEventListener('resize', updateCanvasVar);
     drawMainMenu();
     initMobileControls();
 }
@@ -32,7 +44,7 @@ function init() {
  * Starts the game by initializing the level, world and music.
  */
 function startGame() {
-    let ctx = canvas.getContext('2d', { willReadFrequently: true });
+    let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.style.cursor = 'default';
     level1 = createLevel1();
@@ -51,12 +63,12 @@ function startGame() {
  * @param {KeyboardEvent} event
  */
 window.addEventListener('keydown', (event) => {
-    if (event.keyCode == 68) keyboard.RIGHT = true;
-    if (event.keyCode == 65) keyboard.LEFT = true;
-    if (event.keyCode == 87) keyboard.UP = true;
-    if (event.keyCode == 83) keyboard.DOWN = true;
-    if (event.keyCode == 32) keyboard.SPACE = true;
-    if (event.keyCode == 70) keyboard.F = true;
+    if (event.code === 'KeyD')    keyboard.RIGHT = true;
+    if (event.code === 'KeyA')    keyboard.LEFT  = true;
+    if (event.code === 'KeyW')    keyboard.UP    = true;
+    if (event.code === 'KeyS')    keyboard.DOWN  = true;
+    if (event.code === 'Space')   keyboard.SPACE = true;
+    if (event.code === 'KeyF')    keyboard.F     = true;
 });
 
 
@@ -65,12 +77,12 @@ window.addEventListener('keydown', (event) => {
  * @param {KeyboardEvent} event
  */
 window.addEventListener('keyup', (event) => {
-    if (event.keyCode == 68) keyboard.RIGHT = false;
-    if (event.keyCode == 65) keyboard.LEFT = false;
-    if (event.keyCode == 87) keyboard.UP = false;
-    if (event.keyCode == 83) keyboard.DOWN = false;
-    if (event.keyCode == 32) keyboard.SPACE = false;
-    if (event.keyCode == 70) keyboard.F = false;
+    if (event.code === 'KeyD')    keyboard.RIGHT = false;
+    if (event.code === 'KeyA')    keyboard.LEFT  = false;
+    if (event.code === 'KeyW')    keyboard.UP    = false;
+    if (event.code === 'KeyS')    keyboard.DOWN  = false;
+    if (event.code === 'Space')   keyboard.SPACE = false;
+    if (event.code === 'KeyF')    keyboard.F     = false;
 });
 
 

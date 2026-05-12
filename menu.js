@@ -40,7 +40,7 @@ function hideEl(id, cls = 'hidden') {
  * Draws the background image on the canvas and shows the main menu overlay.
  */
 function drawMainMenu() {
-    let ctx = canvas.getContext('2d', { willReadFrequently: true });
+    let ctx = canvas.getContext('2d');
     world = null;
     hideMobileControls();
 
@@ -99,4 +99,33 @@ function onToggleImpressum() {
         showEl('impressum-overlay');
         btn.innerHTML = '&#10005;';
     }
+}
+
+
+// ──────────────────────────────────────────
+// Endscreen Handlers
+// ──────────────────────────────────────────
+
+/**
+ * Restarts the game from the endscreen.
+ */
+function onRestart() {
+    document.getElementById('endscreen-lose').classList.add('hidden');
+    document.getElementById('endscreen-won').classList.add('hidden');
+    soundManager.stopAll();
+    level1 = createLevel1();
+    world = new World(canvas, keyboard);
+    soundManager.startMusic();
+    showMobileControls();
+}
+
+
+/**
+ * Returns to the main menu from the endscreen.
+ */
+function onBackToMainMenu() {
+    document.getElementById('endscreen-lose').classList.add('hidden');
+    document.getElementById('endscreen-won').classList.add('hidden');
+    soundManager.stopAll();
+    drawMainMenu();
 }

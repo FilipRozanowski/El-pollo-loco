@@ -63,16 +63,16 @@ function createCoins() {
  * @returns {Bottle[]}
  */
 function createBottles() {
-    const img1 = 'img/6_salsa_bottle/1_salsa_bottle_on_ground.png';
-    const img2 = 'img/6_salsa_bottle/2_salsa_bottle_on_ground.png';
+    const bottle1 = 'img/6_salsa_bottle/1_salsa_bottle_on_ground.png';
+    const bottle2 = 'img/6_salsa_bottle/2_salsa_bottle_on_ground.png';
     return [
-        new Bottle(img1),
-        new Bottle(img2),
-        new Bottle(img1),
-        new Bottle(img2),
-        new Bottle(img1),
-        new Bottle(img1),
-        new Bottle(img2)
+        new Bottle(bottle1),
+        new Bottle(bottle2),
+        new Bottle(bottle1),
+        new Bottle(bottle2),
+        new Bottle(bottle1),
+        new Bottle(bottle1),
+        new Bottle(bottle2)
     ];
 }
 
@@ -82,24 +82,26 @@ function createBottles() {
  * @returns {BackgroundObject[]}
  */
 function createBackgrounds() {
-    const air   = 'img/5_background/layers/air.png';
-    const l3a   = 'img/5_background/layers/3_third_layer/1.png';
-    const l3b   = 'img/5_background/layers/3_third_layer/2.png';
-    const l2a   = 'img/5_background/layers/2_second_layer/1.png';
-    const l2b   = 'img/5_background/layers/2_second_layer/2.png';
-    const l1a   = 'img/5_background/layers/1_first_layer/1.png';
-    const l1b   = 'img/5_background/layers/1_first_layer/2.png';
+    const sky          = 'img/5_background/layers/air.png';
+    const hillsFar1    = 'img/5_background/layers/3_third_layer/1.png';
+    const hillsFar2    = 'img/5_background/layers/3_third_layer/2.png';
+    const hillsMid1    = 'img/5_background/layers/2_second_layer/1.png';
+    const hillsMid2    = 'img/5_background/layers/2_second_layer/2.png';
+    const groundFront1 = 'img/5_background/layers/1_first_layer/1.png';
+    const groundFront2 = 'img/5_background/layers/1_first_layer/2.png';
+
+    const SEGMENT_WIDTH = 720;
+
     return [
-        ...createBackgroundSegment(air, l3b, l2b, l1b, -1440),
-        ...createBackgroundSegment(air, l3b, l2b, l1b, -720),
-        ...createBackgroundSegment(air, l3a, l2a, l1a, 0),
-        ...createBackgroundSegment(air, l3b, l2b, l1b, 720),
-        ...createBackgroundSegment(air, l3a, l2a, l1a, 720 * 2),
-        ...createBackgroundSegment(air, l3b, l2b, l1b, 720 * 3),
-        ...createBackgroundSegment(air, l3b, l2b, l1b, 720 * 4),
+        ...createBackgroundSegment(sky, hillsFar2, hillsMid2, groundFront2, -SEGMENT_WIDTH * 2),
+        ...createBackgroundSegment(sky, hillsFar2, hillsMid2, groundFront2, -SEGMENT_WIDTH),
+        ...createBackgroundSegment(sky, hillsFar1, hillsMid1, groundFront1,  0),
+        ...createBackgroundSegment(sky, hillsFar2, hillsMid2, groundFront2,  SEGMENT_WIDTH),
+        ...createBackgroundSegment(sky, hillsFar1, hillsMid1, groundFront1,  SEGMENT_WIDTH * 2),
+        ...createBackgroundSegment(sky, hillsFar2, hillsMid2, groundFront2,  SEGMENT_WIDTH * 3),
+        ...createBackgroundSegment(sky, hillsFar2, hillsMid2, groundFront2,  SEGMENT_WIDTH * 4),
     ];
 }
-
 
 /**
  * Creates one set of 4 background layer objects at the given x offset.
