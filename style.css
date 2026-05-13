@@ -13,8 +13,8 @@ body {
     flex-direction: column;
     background-image: url("img/Westernbackground.png");
     background-size: cover;
-    background-repeat: none;
-    background-position: center;
+    background-repeat: no-repeat;    
+    background-attachment: fixed;
     font-family: Zabra;
     margin: 0;
 }
